@@ -57,4 +57,6 @@ call plug#begin('~/.vim/plugged')
 
         " Visualizer markdown
        " Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
+        "Plugin 'octol/vim-cpp-enhanced-highlight'
+        Plug 'neoclide/coc.nvim', {'branch': 'release'}        
 call plug#end()
