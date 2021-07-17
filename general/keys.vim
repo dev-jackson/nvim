@@ -36,10 +36,5 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
 " 
-nmap <C-t><up> :tabr<cr>
-
-nmap <C-t><down> :tabl<cr>
-
-nmap <C-t><left> :tabp<cr>
-
-nmap <C-t><right> :tabn<cr>
+nnoremap <C-S-tab> :bprevious<CR>
+nnoremap <Tab> :bnext<CR>
