@@ -39,7 +39,7 @@ return {
         typescript      = formatter_prettier,
         typescriptreact = formatter_prettier,
         css             = formatter_prettier,
-        scss            = formatter_prettier
+        scss            = formatter_prettier,
       }
     })
     -- automatically format buffer before writing to disk:
