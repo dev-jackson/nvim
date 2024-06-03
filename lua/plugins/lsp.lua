@@ -3,8 +3,10 @@ return {
   dependencies = {
     "williamboman/mason.nvim",
     "folke/neodev.nvim",
+    "hrsh7th/cmp-nvim-lsp",
   },
   config = function()
+    local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
     vim.keymap.set('n', '‹space›e', vim.diagnostic.open_float)
     vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
     vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
@@ -26,9 +28,9 @@ return {
       vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
       vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
       vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-      vim.keymap.set('n', '<space>f', function()
-        vim.lsp.buf.format({ async = true })
-      end, opts)
+      --vim.keymap.set('n', '<space>f', function()
+      --vim.lsp.buf.format({ async = true })
+      -- end, opts)
     end
     require("neodev").setup()
     require("lspconfig").lua_ls.setup({
@@ -40,5 +42,19 @@ return {
         }
       }
     })
-  end
+    local lspconfig = require("lspconfig")
+    for _, server in pairs({ "eslint", "tsserver" }) do
+      lspconfig[server].setup({
+        on_attach = on_attach,
+        capabilities = lsp_capabilities
+      })
+    end
+    lspconfig.tailwindcss.setup({
+      on_attach = on_attach,
+      capabilities = lsp_capabilities
+    })
+  end,
+  otps = {
+    ensure_installed = { "tailwindcss" }
+  }
 }

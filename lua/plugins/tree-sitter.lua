@@ -2,14 +2,22 @@ return {
   "nvim-treesitter/nvim-treesitter",
   dependencies = {
     "nvim-treesitter/nvim-treesitter-textobjects",
+    "windwp/nvim-ts-autotag",
   },
   build = ":TSUpdate",
   event = "VeryLazy",
   main = "nvim-treesitter.configs",
+  config = function()
+    require("nvim-ts-autotag").setup();
+  end,
   opts = {
     ensure_installed = {
       "lua",
       "luadoc",
+      "tsx",
+      "html",
+      "css",
+      "json",
     },
     highlight = {
       enable = true,
