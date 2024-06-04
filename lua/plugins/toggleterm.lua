@@ -2,12 +2,18 @@ return {
   "akinsho/toggleterm.nvim",
   event = "VeryLazy",
   config = true,
+  tag = "*",
   keys = {
     {
       "<leader>tf",
-      function()
-        require("toggleterm").toggle(1, nil, nil, "float", "New Terminal")
-      end
+      "<cmd>ToggleTerm direction=float<cr>",
+      desc = "Open terminal"
+    },
+    {
+      "<leader>th",
+      "<cmd>ToggleTerm direction=horizontal<cr>",
+      desc = "Open terminal"
     }
+
   }
 }

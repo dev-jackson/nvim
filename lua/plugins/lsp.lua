@@ -46,7 +46,12 @@ return {
     for _, server in pairs({ "eslint", "tsserver" }) do
       lspconfig[server].setup({
         on_attach = on_attach,
-        capabilities = lsp_capabilities
+        capabilities = lsp_capabilities,
+        settings = {
+          typescript = {
+            autoImportSuggestions = true,
+          },
+        },
       })
     end
     lspconfig.tailwindcss.setup({

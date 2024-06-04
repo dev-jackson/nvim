@@ -7,3 +7,5 @@ vim.keymap.set('v', '<', '<gv', { desc = "After tab out re-select the same" })
 
 vim.keymap.set('n', 'n', 'nzzzv', { desc = "Goes to the next result on the seach and put the cursor in the middle"})
 vim.keymap.set('n', 'N', 'Nzzzv', { desc = "Goes to the prev result on the seach and put the cursor in the middle"})
+
+vim.keymap.set('n', '<C-s>', ':w<cr>', {desc = "Save current file"})
