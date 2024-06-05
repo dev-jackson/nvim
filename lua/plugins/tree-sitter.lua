@@ -1,43 +1,43 @@
 return {
-  "nvim-treesitter/nvim-treesitter",
-  dependencies = {
-    "nvim-treesitter/nvim-treesitter-textobjects",
-    "windwp/nvim-ts-autotag",
-  },
-  build = ":TSUpdate",
-  event = "VeryLazy",
-  main = "nvim-treesitter.configs",
-  config = function()
-    require("nvim-ts-autotag").setup();
-  end,
-  opts = {
-    ensure_installed = {
-      "lua",
-      "luadoc",
-      "tsx",
-      "html",
-      "css",
-      "json",
-    },
-    highlight = {
-      enable = true,
-    },
-    indent = {
-      enable = true,
-    },
-    textobjects = {
-      select = {
-        enable = true,
-        lookahead = true,
-        keymaps = {
-          ["af"] = "@function.outer",
-          ["if"] = "@function. inner",
-          ["ac"] = "@conditional.outer",
-          ["ic"] = "@conditional.inner",
-          ["al"] = "@loop.outer",
-          ["il"] = "@loop.tnner",
-        }
-      }
-    }
-  }
+	"nvim-treesitter/nvim-treesitter",
+	dependencies = {
+		"nvim-treesitter/nvim-treesitter-textobjects",
+		"windwp/nvim-ts-autotag",
+	},
+	build = ":TSUpdate",
+	event = "VeryLazy",
+	main = "nvim-treesitter.configs",
+	config = function()
+		require("nvim-ts-autotag").setup();
+	end,
+	opts = {
+		ensure_installed = {
+			"lua",
+			"luadoc",
+			"tsx",
+			"html",
+			"css",
+			"json",
+		},
+		highlight = {
+			enable = true,
+		},
+		indent = {
+			enable = true,
+		},
+		textobjects = {
+			select = {
+				enable = true,
+				lookahead = true,
+				keymaps = {
+					["af"] = "@function.outer",
+					["if"] = "@function. inner",
+					["ac"] = "@conditional.outer",
+					["ic"] = "@conditional.inner",
+					["al"] = "@loop.outer",
+					["il"] = "@loop.tnner",
+				}
+			},
+		}
+	}
 }
