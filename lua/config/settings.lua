@@ -6,3 +6,5 @@ vim.o.tabstop = 4
 vim.opt.updatetime = 100
 -- vim.o.showtabline = 4
 -- vim.o.shiftwidth = 4
+-- Shared clipboard with system
+vim.o.clipboard = "unnamedplus"
