@@ -1,9 +1,9 @@
 return {
-	"catppuccin/nvim",
-  name = "catppuccin-mocha",
+	"wojciechkepka/vim-github-dark",
+  name = "ghdark",
 	lazy = false,
 	priority = 1000,
 	config = function()
-		vim.cmd([[colorscheme catppuccin]])
+		vim.cmd([[colorscheme ghdark]])
 	end
 }
