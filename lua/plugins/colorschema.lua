@@ -1,9 +1,9 @@
 return {
-	"wojciechkepka/vim-github-dark",
-  name = "ghdark",
+	"olimorris/onedarkpro.nvim",
+  name = "onedark",
 	lazy = false,
 	priority = 1000,
 	config = function()
-		vim.cmd([[colorscheme ghdark]])
+		vim.cmd([[colorscheme onedark]])
 	end
 }

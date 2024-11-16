@@ -43,7 +43,7 @@ return {
       }
     })
     local lspconfig = require("lspconfig")
-    for _, server in pairs({ "eslint", "tsserver" }) do
+    for _, server in pairs({ "eslint", "ts_ls" }) do
       lspconfig[server].setup({
         on_attach = on_attach,
         capabilities = lsp_capabilities,
