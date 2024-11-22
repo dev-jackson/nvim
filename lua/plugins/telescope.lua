@@ -87,7 +87,7 @@ return {
 		{
 			"<leader>pf",
 			function()
-				require('telescope.builtin').find_files()
+				require('telescope.builtin').find_files({ file_ignore_patterns = {"node_modules", "*/node_modules/*", "*/dist/*", "dist"} })
 			end,
 			desc = "Telescope Find Files",
 		},
