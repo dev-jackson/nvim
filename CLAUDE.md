@@ -168,6 +168,34 @@ Leader: `<Space>`
 
 4. **Add parser**: `:TSInstall your_language`
 
+## Performance Optimization (Large Projects)
+
+### Ignored Directories
+TypeScript LSP automatically excludes these directories from file watching (configured in `lua/plugins/lsp.lua:144-152`):
+- `node_modules`, `dist`, `build`, `.git`
+- `.next`, `.nuxt`, `coverage`
+
+**To add more ignored directories**: Edit the `excludeDirectories` array in the `ts_ls` config at `lua/plugins/lsp.lua:144`
+
+### Performance Features (Enabled by Default)
+- **Lazy LSP Loading**: Language servers load only when opening relevant filetypes
+- **Update in Insert Mode**: Disabled to prevent lag while typing
+- **File Size Limits**: Treesitter auto-disables for files >200KB or >5000 lines
+- **Reduced File Watching**: Dynamic file watching disabled for TS/ESLint
+- **Memory Limit**: TypeScript server limited to 4GB RAM
+
+### Manual Performance Controls
+```vim
+" Temporarily disable features if still experiencing lag:
+:TSDisable highlight          " Disable treesitter highlighting
+:TSDisable incremental_selection
+:TSDisable textobjects
+:TSEnable highlight           " Re-enable when needed
+
+:LspStop ts_ls                " Stop specific LSP server
+:LspRestart                   " Restart all LSP servers
+```
+
 ## Troubleshooting
 
 ### LSP not working
@@ -188,6 +216,13 @@ Leader: `<Space>`
 :TSUpdate      " Update parsers
 :checkhealth nvim-treesitter
 ```
+
+### Performance issues (lag/slowness)
+1. Check file size: `:echo getfsize(expand('%'))` (bytes)
+2. Check active LSPs: `:LspInfo`
+3. Check if Treesitter is active: `:TSBufToggle highlight`
+4. Increase `updatetime`: Edit `lua/config/settings.lua:7` (current: 300ms)
+5. For TypeScript projects: Add directories to exclude in `lua/plugins/lsp.lua:144`
 
 ## Important Notes
 

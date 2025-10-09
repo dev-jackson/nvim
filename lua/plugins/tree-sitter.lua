@@ -14,6 +14,42 @@ return {
 			enable_autocmd = false,
 		})
 
+		-- Setup nvim-ts-autotag for auto-closing tags
+		require('nvim-ts-autotag').setup({
+			opts = {
+				-- Defaults
+				enable_close = true, -- Auto close tags
+				enable_rename = true, -- Auto rename pairs of tags
+				enable_close_on_slash = true -- Auto close on trailing </
+			},
+			-- Also override individual filetype configs, these take priority.
+			-- Empty by default, useful if one of the "opts" global settings
+			-- doesn't work well in a specific filetype
+			per_filetype = {
+				["html"] = {
+					enable_close = true
+				},
+				["javascript"] = {
+					enable_close = true
+				},
+				["typescript"] = {
+					enable_close = true
+				},
+				["javascriptreact"] = {
+					enable_close = true
+				},
+				["typescriptreact"] = {
+					enable_close = true
+				},
+				["jsx"] = {
+					enable_close = true
+				},
+				["tsx"] = {
+					enable_close = true
+				},
+			}
+		})
+
 		require("nvim-treesitter.configs").setup({
 			-- Install parsers synchronously (only applied to `ensure_installed`)
 			sync_install = false,
@@ -65,15 +101,21 @@ return {
 			-- Highlight configuration
 			highlight = {
 				enable = true,
-				-- Disable for large files
+				-- Disable for large files or projects
 				disable = function(lang, buf)
-					local max_filesize = 100 * 1024 -- 100 KB
+					local max_filesize = 200 * 1024 -- 200 KB (increased from 100KB)
 					local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
 					if ok and stats and stats.size > max_filesize then
 						return true
 					end
+
+					-- Disable for files with too many lines
+					local line_count = vim.api.nvim_buf_line_count(buf)
+					if line_count > 5000 then
+						return true
+					end
 				end,
-				
+
 				-- Setting this to true will run `:h syntax` and tree-sitter at the same time.
 				additional_vim_regex_highlighting = false,
 			},
@@ -109,6 +151,11 @@ return {
 				select = {
 					enable = true,
 					lookahead = true,
+					-- Disable for large files
+					disable = function(lang, buf)
+						local line_count = vim.api.nvim_buf_line_count(buf)
+						return line_count > 3000
+					end,
 					keymaps = {
 						-- Functions
 						["af"] = "@function.outer",

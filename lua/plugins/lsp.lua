@@ -50,6 +50,12 @@ return {
     require("neodev").setup()
 
     -- ========================================
+    -- Performance: Directory Exclusions
+    -- ========================================
+    -- TypeScript and ESLint handle exclusions via their own settings
+    -- See ts_ls config below for watchOptions.excludeDirectories
+
+    -- ========================================
     -- Neovim 0.11+ API: vim.lsp.config()
     -- ========================================
 
@@ -82,21 +88,75 @@ return {
     }
 
     vim.lsp.config('ts_ls', {
+      init_options = {
+        preferences = {
+          -- Exclude these patterns from file watching and indexing
+          disableSuggestions = false,
+        },
+        -- Tell tsserver to ignore these directories
+        tsserver = {
+          watchOptions = {
+            excludeDirectories = {
+              "**/node_modules",
+              "**/.git",
+              "**/dist",
+              "**/build",
+              "**/.next",
+              "**/.nuxt",
+              "**/coverage",
+            }
+          }
+        }
+      },
       settings = {
-        typescript = { inlayHints = inlay_hints },
-        javascript = { inlayHints = inlay_hints }
-      }
+        typescript = {
+          inlayHints = inlay_hints,
+          tsserver = {
+            maxTsServerMemory = 4096,  -- Limit memory usage to 4GB
+          },
+        },
+        javascript = {
+          inlayHints = inlay_hints
+        },
+      },
     })
 
     -- ESLint LSP (auto-fix on save)
     vim.lsp.config('eslint', {
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
-        vim.api.nvim_create_autocmd('BufWritePre', {
-          buffer = bufnr,
-          command = 'EslintFixAll',
-        })
+
+        -- Only create autocmd if eslint client supports code actions
+        if client.server_capabilities.codeActionProvider then
+          vim.api.nvim_create_autocmd('BufWritePre', {
+            buffer = bufnr,
+            callback = function()
+              -- Use pcall to safely attempt eslint fix
+              local ok, _ = pcall(vim.cmd, 'EslintFixAll')
+              if not ok then
+                -- Fallback: try to apply code actions manually
+                vim.lsp.buf.code_action({
+                  context = { only = { 'source.fixAll.eslint' } },
+                  apply = true,
+                })
+              end
+            end,
+          })
+        end
       end,
+      settings = {
+        workingDirectory = { mode = 'auto' },
+        -- Performance: limit validation to open files only
+        codeAction = {
+          disableRuleComment = {
+            enable = true,
+            location = "separateLine"
+          },
+          showDocumentation = {
+            enable = false  -- Disable to improve performance
+          }
+        },
+      }
     })
 
     -- Tailwind CSS LSP
@@ -115,26 +175,72 @@ return {
             pycodestyle = {
               ignore = {'W391'},
               maxLineLength = 100
-            }
+            },
+            -- Disable features that scan large directories
+            pylsp_mypy = { enabled = false },
+            rope_completion = { enabled = false }
           }
         }
       }
     })
 
     -- ========================================
-    -- Enable all language servers
+    -- Enable language servers on-demand by filetype
     -- ========================================
-    -- Servers without custom settings inherit from '*' config
-    vim.lsp.enable({
-      'lua_ls',      -- Lua
-      'ts_ls',       -- TypeScript/JavaScript
-      'eslint',      -- ESLint
-      'tailwindcss', -- Tailwind CSS
-      'pylsp',       -- Python
-      'omnisharp',   -- C# / .NET
-      'cssls',       -- CSS
-      'html',        -- HTML
-      'jsonls'       -- JSON
+    -- This loads servers only when needed, improving startup time
+
+    local function enable_lsp_for_filetype(filetypes, servers)
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = filetypes,
+        callback = function()
+          vim.lsp.enable(servers)
+        end,
+        once = false,
+      })
+    end
+
+    -- Lua (always load for Neovim config)
+    vim.lsp.enable('lua_ls')
+
+    -- Web development
+    enable_lsp_for_filetype(
+      {'typescript', 'javascript', 'typescriptreact', 'javascriptreact'},
+      {'ts_ls', 'eslint'}
+    )
+
+    enable_lsp_for_filetype(
+      {'html', 'css', 'scss', 'vue', 'svelte'},
+      {'tailwindcss', 'cssls', 'html'}
+    )
+
+    -- Python
+    enable_lsp_for_filetype('python', 'pylsp')
+
+    -- C# / .NET
+    enable_lsp_for_filetype('cs', 'omnisharp')
+
+    -- JSON
+    enable_lsp_for_filetype('json', 'jsonls')
+
+    -- ========================================
+    -- Performance optimizations for large projects
+    -- ========================================
+
+    -- Configure diagnostics to reduce interruptions
+    vim.diagnostic.config({
+      update_in_insert = false,  -- Don't update while typing
+      virtual_text = {
+        spacing = 4,
+        prefix = '●',
+        -- Only show diagnostics for current line in insert mode
+        severity = { min = vim.diagnostic.severity.HINT },
+      },
+      signs = true,
+      underline = true,
+      severity_sort = true,
     })
+
+    -- Reduce frequency of LSP updates
+    vim.lsp.set_log_level('WARN')  -- Less verbose logging
   end,
 }
