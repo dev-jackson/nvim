@@ -8,7 +8,7 @@ return {
   },
   config = function()
     local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities()
-    
+
     -- Setup diagnostic keymaps
     vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
     vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
@@ -19,27 +19,27 @@ return {
     local on_attach = function(client, bufnr)
       vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
       local opts = { buffer = bufnr, noremap = true, silent = true }
-      
+
       -- Navigation
       vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
       vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
       vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
       vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
       vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-      
+
       -- Workspace
       vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
       vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
       vim.keymap.set('n', '<space>wl', function()
         print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
       end, opts)
-      
+
       -- Code actions
       vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
       vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
       vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
       vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, opts)
-      
+
       -- Formatting
       vim.keymap.set('n', '<space>f', function()
         vim.lsp.buf.format({ async = true })
@@ -49,56 +49,47 @@ return {
     -- Setup neodev for lua development
     require("neodev").setup()
 
-    -- Setup lspconfig
-    local lspconfig = require("lspconfig")
+    -- ========================================
+    -- Neovim 0.11+ API: vim.lsp.config()
+    -- ========================================
 
-    -- Lua LSP
-    lspconfig.lua_ls.setup({
+    -- Global configuration for all language servers
+    vim.lsp.config('*', {
       on_attach = on_attach,
       capabilities = lsp_capabilities,
+    })
+
+    -- Lua LSP (Neovim configuration)
+    vim.lsp.config('lua_ls', {
       settings = {
         Lua = {
           telemetry = { enable = false },
           workspace = { checkThirdParty = false },
-          diagnostics = {
-            globals = { 'vim' }
-          }
+          diagnostics = { globals = { 'vim' } }
         }
       }
     })
 
     -- TypeScript/JavaScript LSP
-    lspconfig.ts_ls.setup({
-      on_attach = on_attach,
-      capabilities = lsp_capabilities,
+    local inlay_hints = {
+      includeInlayParameterNameHints = 'all',
+      includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+      includeInlayFunctionParameterTypeHints = true,
+      includeInlayVariableTypeHints = true,
+      includeInlayPropertyDeclarationTypeHints = true,
+      includeInlayFunctionLikeReturnTypeHints = true,
+      includeInlayEnumMemberValueHints = true,
+    }
+
+    vim.lsp.config('ts_ls', {
       settings = {
-        typescript = {
-          inlayHints = {
-            includeInlayParameterNameHints = 'all',
-            includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-            includeInlayFunctionParameterTypeHints = true,
-            includeInlayVariableTypeHints = true,
-            includeInlayPropertyDeclarationTypeHints = true,
-            includeInlayFunctionLikeReturnTypeHints = true,
-            includeInlayEnumMemberValueHints = true,
-          }
-        },
-        javascript = {
-          inlayHints = {
-            includeInlayParameterNameHints = 'all',
-            includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-            includeInlayFunctionParameterTypeHints = true,
-            includeInlayVariableTypeHints = true,
-            includeInlayPropertyDeclarationTypeHints = true,
-            includeInlayFunctionLikeReturnTypeHints = true,
-            includeInlayEnumMemberValueHints = true,
-          }
-        }
+        typescript = { inlayHints = inlay_hints },
+        javascript = { inlayHints = inlay_hints }
       }
     })
 
-    -- ESLint LSP
-    lspconfig.eslint.setup({
+    -- ESLint LSP (auto-fix on save)
+    vim.lsp.config('eslint', {
       on_attach = function(client, bufnr)
         on_attach(client, bufnr)
         vim.api.nvim_create_autocmd('BufWritePre', {
@@ -106,23 +97,18 @@ return {
           command = 'EslintFixAll',
         })
       end,
-      capabilities = lsp_capabilities,
     })
 
     -- Tailwind CSS LSP
-    lspconfig.tailwindcss.setup({
-      on_attach = on_attach,
-      capabilities = lsp_capabilities,
+    vim.lsp.config('tailwindcss', {
       filetypes = {
-        'html', 'css', 'scss', 'javascript', 'javascriptreact', 
+        'html', 'css', 'scss', 'javascript', 'javascriptreact',
         'typescript', 'typescriptreact', 'vue', 'svelte'
       }
     })
 
     -- Python LSP
-    lspconfig.pylsp.setup({
-      on_attach = on_attach,
-      capabilities = lsp_capabilities,
+    vim.lsp.config('pylsp', {
       settings = {
         pylsp = {
           plugins = {
@@ -135,40 +121,20 @@ return {
       }
     })
 
-    -- Swift LSP (only on macOS)
-    if vim.fn.has('macunix') == 1 then
-      lspconfig.sourcekit.setup({
-        on_attach = on_attach,
-        capabilities = lsp_capabilities,
-        filetypes = { 'swift', 'objective-c', 'objective-cpp' },
-        root_dir = lspconfig.util.root_pattern('Package.swift', '.git', '*.xcodeproj', '*.xcworkspace'),
-        settings = {
-          sourcekit_lsp = {
-            formatting = {
-              tab_width = 4,
-              indentation_width = 4,
-            }
-          }
-        }
-      })
-    end
-
-    -- CSS LSP
-    lspconfig.cssls.setup({
-      on_attach = on_attach,
-      capabilities = lsp_capabilities,
-    })
-
-    -- HTML LSP
-    lspconfig.html.setup({
-      on_attach = on_attach,
-      capabilities = lsp_capabilities,
-    })
-
-    -- JSON LSP
-    lspconfig.jsonls.setup({
-      on_attach = on_attach,
-      capabilities = lsp_capabilities,
+    -- ========================================
+    -- Enable all language servers
+    -- ========================================
+    -- Servers without custom settings inherit from '*' config
+    vim.lsp.enable({
+      'lua_ls',      -- Lua
+      'ts_ls',       -- TypeScript/JavaScript
+      'eslint',      -- ESLint
+      'tailwindcss', -- Tailwind CSS
+      'pylsp',       -- Python
+      'omnisharp',   -- C# / .NET
+      'cssls',       -- CSS
+      'html',        -- HTML
+      'jsonls'       -- JSON
     })
   end,
 }

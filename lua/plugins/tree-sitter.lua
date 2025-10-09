@@ -34,12 +34,12 @@ return {
 				"json",
 				"yaml",
 				"toml",
-				
-				-- Swift (only on macOS)
-				"swift",
-				
+
 				-- Python
 				"python",
+
+				-- C# / .NET
+				"c_sharp",
 				
 				-- Markdown and documentation
 				"markdown",

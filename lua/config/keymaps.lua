@@ -1,7 +1,4 @@
--- Set leader key
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
-
+-- Leader keys are set in init.lua before loading plugins
 -- Helper function for setting keymaps
 local function map(mode, lhs, rhs, opts)
   opts = opts or {}

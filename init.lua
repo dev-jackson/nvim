@@ -1,3 +1,7 @@
+-- Set leader keys BEFORE loading plugins
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
 require("config")
 
 vim.api.nvim_create_user_command("Jackson", function()

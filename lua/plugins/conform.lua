@@ -24,11 +24,11 @@ return {
         yaml = { "prettier" },
         markdown = { "prettier" },
         
-        -- Swift (only on macOS)
-        swift = vim.fn.has('macunix') == 1 and { "swift_format" } or nil,
-        
         -- Python
         python = { "black", "isort" },
+
+        -- C# / .NET
+        cs = { "csharpier" },
         
       },
       
@@ -46,19 +46,7 @@ return {
       end,
       
       -- Define custom formatters
-      formatters = {
-        swift_format = {
-          command = "swift-format",
-          args = { 
-            "--assume-filename", "$FILENAME",
-            "--configuration", '{"indentation":{"spaces":4},"maximumBlankLines":1}'
-          },
-          stdin = true,
-          condition = function()
-            return vim.fn.executable("swift-format") == 1
-          end,
-        },
-      },
+      formatters = {},
     })
     
     -- Create commands for formatting control
