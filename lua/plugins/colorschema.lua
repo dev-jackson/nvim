@@ -1,9 +1,31 @@
+-- Theme selector with multiple colorschemes
 return {
-	"olimorris/onedarkpro.nvim",
-  name = "onedark",
-	lazy = false,
-	priority = 1000,
-	config = function()
-		vim.cmd([[colorscheme onedark_dark]])
-	end
+  -- Gruvbox theme
+  {
+    "morhetz/gruvbox",
+    lazy = false,
+    priority = 1000,
+  },
+
+  -- Tokyo Night theme
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+  },
+
+  -- Catppuccin theme
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    lazy = false,
+    priority = 1000,
+  },
+
+  -- OneDark theme
+  {
+    "joshdick/onedark.vim",
+    lazy = false,
+    priority = 1000,
+  },
 }
