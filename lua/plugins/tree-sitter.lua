@@ -8,6 +8,12 @@ return {
 		"JoosepAlviste/nvim-ts-context-commentstring",
 	},
 	config = function()
+		-- Fix deprecation warning: setup ts_context_commentstring separately
+		vim.g.skip_ts_context_commentstring_module = true
+		require('ts_context_commentstring').setup({
+			enable_autocmd = false,
+		})
+
 		require("nvim-treesitter.configs").setup({
 			-- Install parsers synchronously (only applied to `ensure_installed`)
 			sync_install = false,
@@ -96,12 +102,6 @@ return {
 				enable_rename = true,
 				enable_close = true,
 				enable_close_on_slash = true,
-			},
-			
-			-- Context-aware commenting
-			context_commentstring = {
-				enable = true,
-				enable_autocmd = false,
 			},
 			
 			-- Text objects

@@ -10,41 +10,45 @@ function M.setup()
     window = {
       completion = {
         border = "rounded",
+        winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None",
       },
       documentation = {
         border = "rounded",
+        winhighlight = "Normal:Normal,FloatBorder:FloatBorder,CursorLine:Visual,Search:None",
       },
     },
     formatting = {
       format = function(entry, vim_item)
         local KIND_ICONS = {
-          Tailwind = '󰹞󰹞󰹞󰹞󰹞󰹞󰹞󰹞',
-          Color = ' ',
-          -- Class = 7,
-          -- Constant = '󰚞',
-          -- Constructor = 4,
-          -- Enum = 13,
-          -- EnumMember = 20,
-          -- Event = 23,
-          -- Field = 5,
-          -- File = 17,
-          -- Folder = 19,
-          -- Function = 3,
-          -- Interface = 8,
-          -- Keyword = 14,
-          -- Method = 2,
-          -- Module = 9,
-          -- Operator = 24,
-          -- Property = 10,
-          -- Reference = 18,
-          Snippet = " ",
-          -- Struct = 22,
-          -- Text = "",
-          -- TypeParameter = 25,
-          -- Unit = 11,
-          -- Value = 12,
-          -- Variable = 6
+          Tailwind = '󰹞',
+          Color = ' ',
+          Snippet = " ",
+          Text = " ",
+          Method = " ",
+          Function = " ",
+          Constructor = " ",
+          Field = " ",
+          Variable = " ",
+          Class = " ",
+          Interface = " ",
+          Module = " ",
+          Property = " ",
+          Unit = " ",
+          Value = " ",
+          Enum = " ",
+          Keyword = " ",
+          File = " ",
+          Reference = " ",
+          Folder = " ",
+          EnumMember = " ",
+          Constant = " ",
+          Struct = " ",
+          Event = " ",
+          Operator = " ",
+          TypeParameter = " ",
         }
+
+        -- Special handling for Tailwind CSS colors
         if vim_item.kind == 'Color' and entry.completion_item.documentation then
           local _, _, r, g, b =
           ---@diagnostic disable-next-line: param-type-mismatch
@@ -65,7 +69,16 @@ function M.setup()
           end
         end
 
-        vim_item.kind = KIND_ICONS[vim_item.kind] or vim_item.kind
+        -- Apply icon
+        vim_item.kind = string.format('%s %s', KIND_ICONS[vim_item.kind] or '', vim_item.kind)
+
+        -- Show source name
+        vim_item.menu = ({
+          nvim_lsp = "[LSP]",
+          luasnip = "[Snip]",
+          buffer = "[Buf]",
+          path = "[Path]",
+        })[entry.source.name]
 
         return vim_item
       end,
@@ -75,46 +88,95 @@ function M.setup()
         luasnip.lsp_expand(args.body)
       end,
     },
-    mapping = {
+
+    -- ============================================================================
+    -- SUPER-TAB MAPPINGS (2025 Best Practice)
+    -- ============================================================================
+    mapping = cmp.mapping.preset.insert({
+      -- Scroll documentation
       ["<C-d>"] = cmp.mapping.scroll_docs(-4),
       ["<C-f>"] = cmp.mapping.scroll_docs(4),
+
+      -- Abort completion
       ["<C-e>"] = cmp.mapping.abort(),
-      ["<C-n>"] = cmp.mapping(function(fallback)
+
+      -- Trigger completion manually
+      ["<C-Space>"] = cmp.mapping.complete(),
+
+      -- Navigate items (Ctrl+n/p as alternative)
+      ["<C-n>"] = cmp.mapping.select_next_item(),
+      ["<C-p>"] = cmp.mapping.select_prev_item(),
+
+      -- Enter to confirm (only if explicitly selected)
+      ["<CR>"] = cmp.mapping.confirm({
+        behavior = cmp.ConfirmBehavior.Replace,
+        select = false, -- Only confirm if explicitly selected (more control)
+      }),
+
+      -- Super-Tab: Tab to select next or expand/jump snippet
+      ["<Tab>"] = cmp.mapping(function(fallback)
         if cmp.visible() then
           cmp.select_next_item()
-        elseif luasnip.choice_active() then
-          luasnip.change_choice(1)
+        elseif luasnip.expand_or_locally_jumpable() then
+          luasnip.expand_or_jump()
         else
           fallback()
         end
       end, { "i", "s" }),
-      ["<C-p>"] = cmp.mapping.select_prev_item(),
-      ["<C-y>"] = cmp.mapping.confirm {
-        behavior = cmp.ConfirmBehavior.Insert,
-        select = true,
-      },
-      ["<c-space>"] = cmp.mapping.complete(),
+
+      -- Shift-Tab: Select previous or jump back in snippet
+      ["<S-Tab>"] = cmp.mapping(function(fallback)
+        if cmp.visible() then
+          cmp.select_prev_item()
+        elseif luasnip.jumpable(-1) then
+          luasnip.jump(-1)
+        else
+          fallback()
+        end
+      end, { "i", "s" }),
+    }),
+
+    sources = cmp.config.sources({
+      { name = "nvim_lsp", priority = 1000 },
+      { name = "luasnip", priority = 750 },
+      { name = "path", priority = 500 },
+      { name = "buffer", priority = 250 },
+    }),
+
+    -- Don't auto-select first item
+    preselect = cmp.PreselectMode.None,
+    completion = {
+      completeopt = 'menu,menuone,noinsert,noselect'
     },
-    sources = {
-      { name = "nvim_lsp" },
-      { name = "path" },
-      { name = "luasnip" },
-      { name = "buffer" },
+
+    experimental = {
+      ghost_text = {
+        hl_group = "CmpGhostText",
+      },
     },
   })
 
+  -- Autopairs integration
   cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done { map_char = { tex = "" } })
 
-  -- Set configuration for specific filetype.
+  -- ============================================================================
+  -- FILETYPE SPECIFIC CONFIGS
+  -- ============================================================================
+
+  -- Git commit messages
   cmp.setup.filetype('gitcommit', {
     sources = cmp.config.sources({
-      { name = 'git' }, -- You can specify the `git` source if [you were installed it](https://github.com/petertriho/cmp-git).
+      { name = 'git' },
     }, {
       { name = 'buffer' },
     })
   })
 
-  -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
+  -- ============================================================================
+  -- CMDLINE COMPLETION
+  -- ============================================================================
+
+  -- Search (/, ?)
   cmp.setup.cmdline({ '/', '?' }, {
     mapping = cmp.mapping.preset.cmdline(),
     sources = {
@@ -122,7 +184,7 @@ function M.setup()
     }
   })
 
-  -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+  -- Command line (:)
   cmp.setup.cmdline(':', {
     mapping = cmp.mapping.preset.cmdline(),
     sources = cmp.config.sources({
