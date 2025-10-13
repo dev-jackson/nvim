@@ -131,15 +131,8 @@ return {
           vim.api.nvim_create_autocmd('BufWritePre', {
             buffer = bufnr,
             callback = function()
-              -- Use pcall to safely attempt eslint fix
-              local ok, _ = pcall(vim.cmd, 'EslintFixAll')
-              if not ok then
-                -- Fallback: try to apply code actions manually
-                vim.lsp.buf.code_action({
-                  context = { only = { 'source.fixAll.eslint' } },
-                  apply = true,
-                })
-              end
+              -- Only run ESLint auto-fix, no fallback to avoid "No code actions" message
+              pcall(vim.cmd, 'EslintFixAll')
             end,
           })
         end

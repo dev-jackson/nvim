@@ -26,13 +26,17 @@ fi
 # Python dependencies for Python LSP
 if command_exists pip3; then
   echo "📦 Installing Python packages..."
-  pip3 install --user --upgrade \
-    python-lsp-server \
+  python3 -m venv tempenv
+  source tempenv/bin/activate
+  pip install python-lsp-server \
     black \
     isort \
     flake8
+  deactivate
+  rm -rf tempenv
   echo "✅ Python packages installed"
 else
+  deactivate
   echo "⚠️  pip3 not found. Skipping Python packages."
   echo "   Install Python from: https://python.org"
 fi

@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Neovim configuration for multi-language development: TypeScript/JavaScript (React), Python, C#/.NET, Lua, HTML/CSS/Tailwind. Uses Lazy.nvim for plugin management with modular configuration structure.
 
+**Note**: Swift/iOS development support was previously included but has been removed as of recent commits. This configuration now focuses on web development, Python, C#, and Lua.
+
 ## Architecture
 
 ### Configuration Loading Order
@@ -26,6 +28,10 @@ Neovim configuration for multi-language development: TypeScript/JavaScript (Reac
 **Formatters**: `lua/plugins/conform.lua` manages format-on-save by filetype. Enabled by default, disable with `:FormatDisable` (buffer) or `:FormatDisable!` (global)
 
 **Tree-sitter**: Auto-installs parsers on buffer enter. Provides syntax highlighting, text objects, auto-tagging for HTML/JSX
+
+**Theme System**: Custom theme selector (`init.lua:33-151`) with live preview and persistence. Themes stored in `config.theme_persistence`, sample code in `config.theme_preview`
+
+**Plugin Architecture**: All plugins in `lua/plugins/*.lua` return a table with URL, dependencies, and config function. Mason auto-installs tools on startup with 3-second delay
 
 ## Language Support
 
@@ -92,6 +98,8 @@ This installs required npm, pip3, and dotnet packages that LSP servers need.
 :TSUpdate            " Update tree-sitter parsers
 :checkhealth         " Run health checks
 :SmearCursorToggle   " Toggle animated cursor
+:ThemeSelect         " Launch theme selector with live preview
+:Jackson             " Custom dragon command (test/demo)
 ```
 
 ### Auto-Installation
@@ -120,6 +128,12 @@ Leader: `<Space>`
 - `<leader>ff` - Find files (Telescope)
 - `<leader>fg` - Live grep
 - `<leader>fb` - Find buffers
+- `<leader>w` / `<C-s>` - Save current file
+- `<leader>wa` - Save all files
+- `<leader>q` - Quit current window
+- `<leader>qa` - Quit all windows
+- `<leader>rr` - Source current file
+- `<leader>rc` - Reload Neovim config
 
 ### LSP (when active)
 - `gd` - Go to definition
@@ -130,6 +144,11 @@ Leader: `<Space>`
 - `<space>ca` - Code actions
 - `<space>f` - Format file
 - `[d` / `]d` - Navigate diagnostics
+
+### Buffer Management
+- `<leader>bd` - Close current buffer (force)
+- `<leader>bn` - Next buffer
+- `<leader>bp` - Previous buffer
 
 ### Git
 - `<leader>gs` - Git status
@@ -236,3 +255,5 @@ TypeScript LSP automatically excludes these directories from file watching (conf
 - **Global LSP config** via `vim.lsp.config('*', {...})` applies to all servers
 - **Smear cursor**: Animated cursor effect enabled (toggle with `:SmearCursorToggle`)
 - **Alpha dashboard**: Custom start screen with quick actions (find files, recent, config, etc.)
+- **Theme selector**: Interactive theme selector with live preview (`:ThemeSelect`) - uses Telescope with code preview
+- **Theme persistence**: Automatically saves and loads selected themes via `theme_persistence.lua`
