@@ -198,18 +198,36 @@ return {
     })
 
     -- Kotlin / Android (kotlin-language-server via Mason)
+    -- Docs: https://github.com/fwcd/kotlin-language-server
     vim.lsp.config('kotlin_language_server', {
+      -- Sin root_dir el LSP no se adjunta a proyectos Android
+      root_dir = function(fname)
+        local util = require('lspconfig.util')
+        return util.root_pattern(
+          'settings.gradle',
+          'settings.gradle.kts',
+          'build.gradle',
+          'build.gradle.kts',
+          '.git'
+        )(fname)
+      end,
+      -- init_options: enviados en la petición initialize (startup)
+      -- externalSources DEBE ir aquí, no en settings
+      init_options = {
+        externalSources = {
+          useKlsScheme        = false,  -- usa decompiler estándar (compatible con Neovim)
+          autoConvertToKotlin = true,   -- muestra bytecode Java como Kotlin (legible)
+        },
+        storagePath = vim.fn.stdpath('cache') .. '/kotlin-language-server',
+      },
+      -- settings: enviados vía workspace/didChangeConfiguration (post-startup)
       settings = {
         kotlin = {
-          compiler = {
-            jvm = {
-              target = "17",
-            },
-          },
+          -- compiler.jvm.target omitted: LSP reads it from the project's build.gradle.kts
           inlayHints = {
-            typeHints = { enable = true },
+            typeHints      = { enable = true },
             parameterHints = { enable = true },
-            chainedHints = { enable = true },
+            chainedHints   = { enable = true },
           },
           completion = {
             snippets = { enabled = true },
