@@ -33,8 +33,8 @@ return {
         -- Swift / iOS (swiftformat en /opt/homebrew/bin/swiftformat)
         swift = { "swiftformat" },
 
-        -- Kotlin / Android (ktlint via Mason o fallback a LSP format)
-        kotlin = { "ktlint" },
+        -- Kotlin / Android: omitted here → lsp_fallback handles format-on-save
+        -- ktlint is too slow (JVM startup) for 500ms timeout; use :lua require('conform').format() manually
 
       },
 
