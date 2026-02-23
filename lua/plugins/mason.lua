@@ -42,6 +42,7 @@ return {
           "black",                 -- Python (requires: pip3)
           "isort",                 -- Python imports (requires: pip3)
           "csharpier",             -- C# / .NET (requires: dotnet)
+          "ktlint",                -- Kotlin linter/formatter (Android)
 
           -- Linters
           "flake8",                -- Python (requires: pip3)

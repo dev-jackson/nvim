@@ -195,6 +195,19 @@ return {
       { "<leader>Xl", desc = "Open Logs" },
       { "<leader>Xc", desc = "Toggle Coverage" },
       { "<leader>Xp", desc = "Select Test Plan" },
+
+      -- Android group (capital A, no conflicto con <leader>a minúscula = AI)
+      { "<leader>A", group = "Android", icon = "" },
+      { "<leader>Am", desc = "Menu principal" },
+      { "<leader>At", desc = "Targets" },
+      { "<leader>Ao", desc = "Tools" },
+      { "<leader>Aa", desc = "Actions" },
+      { "<leader>Ab", desc = "Build + Install + Run" },
+      { "<leader>AB", desc = "Assemble APK" },
+      { "<leader>Ar", desc = "Run" },
+      { "<leader>AR", desc = "Stop" },
+      { "<leader>Al", desc = "Logcat" },
+      { "<leader>Ag", desc = "Gradle Tasks" },
     })
 
     -- ============================================================================
