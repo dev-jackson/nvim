@@ -172,6 +172,29 @@ return {
       { "<leader>x", group = "Trouble", icon = "" },
       { "<leader>xt", desc = "Todos (Trouble)" },
       { "<leader>xT", desc = "Todos/Fix (Trouble)" },
+
+      -- AI group (Claude Code CLI + Codex CLI)
+      { "<leader>a", group = "AI", icon = "" },
+      { "<leader>ac", desc = "Claude Code: Toggle" },
+      { "<leader>aA", desc = "Claude Code: Focus" },
+      { "<leader>as", desc = "Claude Code: Send selection", mode = "v" },
+      { "<leader>ay", desc = "Claude Code: Accept diff" },
+      { "<leader>an", desc = "Claude Code: Reject diff" },
+      { "<leader>ao", desc = "Codex: Toggle" },
+      { "<leader>ae", desc = "Codex: Send selection", mode = "v" },
+
+      -- Xcode / iOS group (capital X, no conflicto con <leader>x)
+      { "<leader>X", group = "Xcode/iOS", icon = "" },
+      { "<leader>Xb", desc = "Build" },
+      { "<leader>XB", desc = "Build for Testing" },
+      { "<leader>Xr", desc = "Build & Run" },
+      { "<leader>Xt", desc = "Run All Tests" },
+      { "<leader>XT", desc = "Run Test Class" },
+      { "<leader>Xs", desc = "Select Scheme" },
+      { "<leader>Xd", desc = "Select Device" },
+      { "<leader>Xl", desc = "Open Logs" },
+      { "<leader>Xc", desc = "Toggle Coverage" },
+      { "<leader>Xp", desc = "Select Test Plan" },
     })
 
     -- ============================================================================

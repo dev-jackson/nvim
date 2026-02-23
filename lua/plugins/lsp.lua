@@ -139,6 +139,10 @@ return {
       end,
       settings = {
         workingDirectory = { mode = 'auto' },
+        -- Soporte para ESLint 9+ flat config (eslint.config.js / .mjs)
+        experimental = {
+          useFlatConfig = true,
+        },
         -- Performance: limit validation to open files only
         codeAction = {
           disableRuleComment = {
@@ -177,6 +181,43 @@ return {
       }
     })
 
+    -- Swift / iOS (sourcekit-lsp en /usr/bin/sourcekit-lsp vía Xcode)
+    -- Para proyectos Xcode: ejecutar xcode-build-server config en el directorio del proyecto
+    vim.lsp.config('sourcekit', {
+      filetypes = { 'swift', 'objective-c', 'objective-cpp' },
+      root_dir = function(fname)
+        local util = require('lspconfig.util')
+        return util.root_pattern(
+          'buildServer.json',  -- generado por xcode-build-server
+          '*.xcodeproj',
+          '*.xcworkspace',
+          'Package.swift',
+          '.git'
+        )(fname)
+      end,
+    })
+
+    -- Kotlin / Android (kotlin-language-server via Mason)
+    vim.lsp.config('kotlin_language_server', {
+      settings = {
+        kotlin = {
+          compiler = {
+            jvm = {
+              target = "17",
+            },
+          },
+          inlayHints = {
+            typeHints = { enable = true },
+            parameterHints = { enable = true },
+            chainedHints = { enable = true },
+          },
+          completion = {
+            snippets = { enabled = true },
+          },
+        },
+      },
+    })
+
     -- ========================================
     -- Enable language servers on-demand by filetype
     -- ========================================
@@ -209,8 +250,14 @@ return {
     -- Python
     enable_lsp_for_filetype('python', 'pylsp')
 
-    -- C# / .NET
-    enable_lsp_for_filetype('cs', 'omnisharp')
+    -- Swift / iOS
+    enable_lsp_for_filetype(
+      { 'swift', 'objective-c', 'objective-cpp' },
+      'sourcekit'
+    )
+
+    -- Kotlin / Android
+    enable_lsp_for_filetype('kotlin', 'kotlin_language_server')
 
     -- JSON
     enable_lsp_for_filetype('json', 'jsonls')

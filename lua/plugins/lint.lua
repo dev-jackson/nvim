@@ -23,6 +23,9 @@ return {
       
       -- Docker
       dockerfile = { "hadolint" },
+
+      -- Swift (requiere: brew install swiftlint — agregado en install.sh)
+      swift = { "swiftlint" },
     }
     
     -- Auto-lint on specific events

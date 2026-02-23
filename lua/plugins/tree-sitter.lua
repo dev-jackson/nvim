@@ -82,7 +82,13 @@ return {
 
 				-- C# / .NET
 				"c_sharp",
-				
+
+				-- Kotlin / Android
+				"kotlin",
+
+				-- Swift / iOS
+				"swift",
+
 				-- Markdown and documentation
 				"markdown",
 				"markdown_inline",

@@ -1,255 +1,366 @@
-# Neovim Configuration 2025
+# Neovim Configuration 2026
 
-A modern, efficient Neovim configuration optimized for Swift/SwiftUI, Python, React, and TypeScript development.
+A production-ready Neovim configuration for full-stack development across Web, Android, iOS, C#, and AI-assisted workflows.
 
-## ✨ Features
+## Features
 
-- **Multi-language Support**: Swift, SwiftUI, Python, React, TypeScript, Tailwind CSS
-- **Swift/SwiftUI Development**: Complete iOS/macOS development environment with xcodebuild.nvim
-- **Intelligent LSP**: Auto-detection and installation of language servers
-- **Auto-formatting**: Format on save for all supported languages
-- **Advanced Linting**: Real-time error detection and suggestions
-- **Package Management**: Lazy.nvim for efficient plugin management
-- **Git Integration**: Built-in Git workflows with Fugitive and Gitsigns
-- **Telescope**: Powerful fuzzy finder and file navigation
-- **Tree-sitter**: Advanced syntax highlighting and code understanding
-- **Auto-completion**: Intelligent code completion with nvim-cmp
+- **Multi-language LSP**: TypeScript/JavaScript, Python, C# (Roslyn), Kotlin, Swift
+- **AI Integration**: Claude Code CLI (`claude`) + OpenAI Codex CLI (`codex`) via native terminal panels with diff accept/reject
+- **iOS/macOS Development**: xcodebuild.nvim with build, test, and device selection
+- **Android/Kotlin**: kotlin-language-server via Mason with inlay hints
+- **Web**: React + Next.js, Tailwind CSS, ESLint 9+ flat config support
+- **C# / .NET**: Roslyn LSP (replaces deprecated OmniSharp) via roslyn.nvim
+- **Auto-formatting**: conform.nvim with per-language formatters on save
+- **Linting**: nvim-lint with per-filetype linters
+- **Completion**: nvim-cmp with LSP, snippets, path, and buffer sources
+- **Plugin Management**: Lazy.nvim with lazy loading for fast startup
+- **Theme Selector**: Interactive live preview (`:ThemeSelect`)
 
-## 🚀 Supported Languages & Frameworks
+## Supported Languages & Tools
 
-### Swift/SwiftUI (macOS only)
+| Language | LSP | Formatter | Linter |
+|----------|-----|-----------|--------|
+| TypeScript/JavaScript | ts_ls | prettier | eslint |
+| Python | pylsp | black, isort | flake8 |
+| C# / .NET | Roslyn (roslyn.nvim) | csharpier | — |
+| Kotlin / Android | kotlin_language_server | ktlint | — |
+| Swift / iOS | sourcekit-lsp | swiftformat | swiftlint |
+| Lua | lua_ls | stylua | — |
+| HTML/CSS | html, cssls, tailwindcss | prettier | — |
 
-- **LSP**: sourcekit-lsp
-- **Build System**: xcodebuild.nvim integration
-- **Formatting**: swift-format (4 spaces, Xcode style)
-- **Linting**: swiftlint
-- **Project Support**: iOS Apps, macOS Apps, Swift Packages
-- **Debugging**: lldb integration through nvim-dap
+## Prerequisites
 
-### Web Development
+### All Platforms
+- Neovim >= 0.11
+- Git
+- Node.js >= 18.x
+- Python >= 3.10
+- .NET SDK >= 8.0
 
-- **TypeScript/JavaScript**: ts_ls, eslint_d, prettier
-- **React**: Full JSX/TSX support with auto-imports
-- **Tailwind CSS**: Intelligent class completion and suggestions
-- **CSS/SCSS**: Built-in support with formatting
+### macOS (iOS/Swift)
+- Xcode (for sourcekit-lsp at `/usr/bin/sourcekit-lsp`)
+- Homebrew (for swiftformat, swiftlint, xcbeautify, xcode-build-server)
+
+### AI CLI Tools
+- `claude` CLI — Claude Code (Anthropic)
+- `codex` CLI — OpenAI Codex (`npm install -g @openai/codex`)
+
+## Installation
+
+### 1. Clone the configuration
+
+```bash
+git clone <your-repo-url> ~/.config/nvim
+cd ~/.config/nvim
+```
+
+### 2. Run the install script
+
+```bash
+./install.sh
+```
+
+This installs:
+- Node.js global packages (typescript, prettier, eslint, etc.)
+- Python LSP packages (black, isort, flake8, python-lsp-server)
+- .NET tools (CSharpier formatter; Roslyn downloads automatically on first `.cs` open)
+- macOS: xcode-build-server, xcbeautify, swiftformat, swiftlint via Homebrew
+- Checks for `claude` and `codex` CLIs, offers to install Codex if missing
+
+### 3. Launch Neovim
+
+```bash
+nvim
+```
+
+Lazy.nvim installs all plugins on first launch. Mason auto-installs LSP servers.
+
+## Language Setup
+
+### TypeScript / React / Next.js
+
+Works out of the box after `./install.sh`. Supports ESLint 9+ flat config (`eslint.config.js` / `.mjs`).
+
+```vim
+" Verify
+:LspInfo     " ts_ls + eslint should appear
+:ConformInfo " prettier should appear
+```
 
 ### Python
 
-- **LSP**: pylsp (Python LSP Server)
-- **Formatting**: black, autopep8
-- **Linting**: flake8, pylint
+Works out of the box after `./install.sh`.
 
-## 📦 Installation
-
-### Prerequisites
-
-- Neovim >= 0.9.0
-- Git
-- Node.js (for TypeScript/JavaScript LSP)
-- Python 3.x (for Python LSP)
-- macOS (for Swift/SwiftUI development)
-- Xcode Command Line Tools (for Swift development)
-
-### Quick Setup
-
-1. **Clone the configuration:**
-
-   ```bash
-   git clone <your-repo-url> ~/.config/nvim
-   cd ~/.config/nvim
-   ```
-
-2. **Install dependencies:**
-
-   ```bash
-   ./install.sh
-   ```
-
-3. **Launch Neovim:**
-
-   ```bash
-   nvim
-   ```
-
-4. **Let plugins install automatically** (Lazy.nvim will handle this)
-
-## 🛠️ Swift/SwiftUI Development Setup
-
-This configuration includes full Swift development support through `xcodebuild.nvim`.
-
-### Required Tools
-
-```bash
-# Install Swift development tools
-xcode-select --install
-
-# Install swiftlint (optional but recommended)
-brew install swiftlint
-
-# Install swift-format (optional but recommended)
-brew install swift-format
+```vim
+:LspInfo     " pylsp should appear
 ```
 
-### Swift Package Development
+### C# / .NET (Roslyn)
 
-The configuration automatically detects Swift packages and provides:
+roslyn.nvim downloads `Microsoft.CodeAnalysis.LanguageServer` automatically on first `.cs` open (~200MB, takes 30-60s the first time).
 
-- **Building**: `:XcodebuildBuild`
-- **Testing**: `:XcodebuildTest`
-- **Running**: `:XcodebuildRun`
-- **Device Selection**: `:XcodebuildSelectDevice`
-- **Scheme Selection**: `:XcodebuildSelectScheme`
+```vim
+" Open a .cs file — Roslyn downloads automatically
+:LspInfo     " roslyn should appear (NOT omnisharp)
+```
 
-### iOS App Development
+### Kotlin / Android
 
-For iOS app projects:
+Mason auto-installs `kotlin-language-server` when you first open a `.kt` file.
 
-1. Open your iOS project directory in Neovim
-2. Use `:XcodebuildSelectProject` to select your .xcodeproj file
-3. Use `:XcodebuildSelectScheme` to select your app scheme
-4. Use `:XcodebuildSelectDevice` to choose simulator or device
-5. Build and run with `:XcodebuildBuildAndRun`
+```vim
+" Open a .kt file — Mason installs kotlin-language-server automatically
+:LspInfo     " kotlin_language_server should appear
+```
 
-## ⌨️ Key Mappings
+### Swift / iOS
 
-### General
+#### Simple Swift Packages (`Package.swift` only)
 
-- `<leader>e` - Open file explorer (nvim-tree)
-- `<leader>ff` - Find files (Telescope)
-- `<leader>fg` - Live grep (Telescope)
-- `<leader>fb` - Find buffers (Telescope)
-- `<leader>fh` - Find help tags (Telescope)
+Open any `.swift` file — sourcekit-lsp activates automatically.
+
+#### Xcode Projects (`.xcodeproj` / `.xcworkspace`)
+
+Run once per project to generate `buildServer.json`:
+
+```bash
+cd /path/to/MyProject
+xcode-build-server config -scheme MyApp -workspace MyApp.xcworkspace
+```
+
+Then open any `.swift` file in Neovim — sourcekit-lsp and xcodebuild.nvim activate automatically.
+
+```vim
+:LspInfo     " sourcekit should appear
+<leader>Xb   " Build the project
+```
+
+### AI: Claude Code + Codex
+
+Both tools connect their respective CLIs to Neovim via terminal panels. Claude proposes file changes as diffs that you accept or reject inline.
+
+```vim
+<leader>ac   " Open Claude Code panel (right side)
+" Type your request in Claude, it proposes changes
+<leader>ay   " Accept proposed diff
+<leader>an   " Reject proposed diff
+
+<leader>ao   " Open Codex panel (left side)
+```
+
+## Key Mappings
+
+**Leader key**: `<Space>`
+
+### AI (`<leader>a`)
+
+| Keymap | Action |
+|--------|--------|
+| `<leader>ac` | Toggle Claude Code terminal |
+| `<leader>aA` | Focus Claude Code |
+| `<leader>as` | Send visual selection to Claude |
+| `<leader>ay` | Accept Claude's diff |
+| `<leader>an` | Reject Claude's diff |
+| `<leader>ao` | Toggle Codex terminal |
+| `<leader>ae` | Send visual selection to Codex |
+
+### Xcode / iOS (`<leader>X`)
+
+| Keymap | Action |
+|--------|--------|
+| `<leader>Xb` | Build |
+| `<leader>XB` | Build for Testing |
+| `<leader>Xr` | Build & Run |
+| `<leader>Xt` | Run All Tests |
+| `<leader>XT` | Run Test Class |
+| `<leader>Xs` | Select Scheme |
+| `<leader>Xd` | Select Device |
+| `<leader>Xl` | Open Build Logs |
+| `<leader>Xc` | Toggle Code Coverage |
+| `<leader>Xp` | Select Test Plan |
+
+### File Navigation
+
+| Keymap | Action |
+|--------|--------|
+| `<leader>e` | Toggle file explorer (nvim-tree) |
+| `<leader>ff` | Find files (Telescope) |
+| `<leader>fg` | Live grep |
+| `<leader>fb` | Find buffers |
+| `<leader>fr` | Recent files |
 
 ### LSP
 
-- `gd` - Go to definition
-- `gD` - Go to declaration
-- `gr` - Find references
-- `K` - Show hover information
-- `<leader>rn` - Rename symbol
-- `<leader>f` - Format code
-- `[d` / `]d` - Navigate diagnostics
+| Keymap | Action |
+|--------|--------|
+| `gd` | Go to definition |
+| `gD` | Go to declaration |
+| `gr` | Find references |
+| `K` | Hover documentation |
+| `<space>rn` | Rename symbol |
+| `<space>ca` | Code actions |
+| `<space>f` | Format file |
+| `[d` / `]d` | Navigate diagnostics |
 
-### Swift/Xcode
+### Buffer Management
 
-- `<leader>xb` - Build project
-- `<leader>xr` - Run project
-- `<leader>xt` - Run tests
-- `<leader>xs` - Select scheme
-- `<leader>xd` - Select device
+| Keymap | Action |
+|--------|--------|
+| `<leader>bd` | Close current buffer |
+| `<leader>bn` | Next buffer |
+| `<leader>bp` | Previous buffer |
 
 ### Git
 
-- `<leader>gs` - Git status
-- `<leader>gc` - Git commit
-- `<leader>gp` - Git push
+| Keymap | Action |
+|--------|--------|
+| `<leader>gg` | Git status |
+| `<leader>gc` | Git commit |
+| `<leader>gp` | Git push |
+| `<leader>gl` | Git pull |
+| `<leader>gd` | Git diff |
 
-## 🔧 Configuration Structure
+### Format Control
+
+| Command | Action |
+|---------|--------|
+| `:FormatDisable` | Disable format-on-save (buffer) |
+| `:FormatDisable!` | Disable format-on-save (global) |
+| `:FormatEnable` | Re-enable format-on-save |
+| `<leader>mp` | Manual format |
+
+## Configuration Structure
 
 ```
 ~/.config/nvim/
-├── init.lua                 # Main configuration entry point
+├── init.lua                     # Entry point: sets leader, loads config module
+├── install.sh                   # System dependency installer
 ├── lua/
 │   ├── config/
-│   │   ├── init.lua        # Load all configurations
-│   │   ├── settings.lua    # Neovim settings
-│   │   ├── keymaps.lua     # Key mappings
-│   │   └── lazy.lua        # Plugin manager setup
+│   │   ├── init.lua             # Loads settings, lazy, keymaps
+│   │   ├── settings.lua         # Neovim options
+│   │   ├── keymaps.lua          # Global key mappings
+│   │   ├── lazy.lua             # Lazy.nvim bootstrap
+│   │   └── theme_persistence.lua # Theme save/load
 │   └── plugins/
-│       ├── lsp.lua         # LSP configuration
-│       ├── xcodebuild.lua  # Swift/Xcode integration
-│       ├── mason.lua       # LSP installer
-│       ├── cmp.lua         # Completion engine
-│       ├── telescope.lua   # Fuzzy finder
-│       ├── tree-sitter.lua # Syntax highlighting
-│       └── ...            # Other plugins
-├── ftplugin/              # File-type specific configurations
-└── snippets/              # Custom snippets
+│       ├── ai.lua               # Claude Code + Codex CLI integration
+│       ├── ios.lua              # xcodebuild.nvim for iOS/macOS
+│       ├── roslyn.lua           # Roslyn LSP for C#
+│       ├── lsp.lua              # All LSP configs (0.11+ API)
+│       ├── mason.lua            # Mason + auto-installer
+│       ├── conform.lua          # Format-on-save
+│       ├── lint.lua             # nvim-lint
+│       ├── cmp.lua              # Completion
+│       ├── telescope.lua        # Fuzzy finder
+│       ├── tree-sitter.lua      # Syntax highlighting
+│       ├── which-key.lua        # Keymap documentation
+│       └── ...                  # Other plugins
+├── ftplugin/                    # Filetype-specific settings
+└── snippets/                    # Custom snippets
 ```
 
-## 🎨 Customization
+## Useful Commands
 
-### Adding New Languages
+```vim
+:Lazy               " Plugin manager UI
+:Mason              " LSP/formatter installer UI
+:LspInfo            " Active LSP servers for current buffer
+:ConformInfo        " Formatter config for current buffer
+:TSUpdate           " Update Tree-sitter parsers
+:checkhealth        " Run all health checks
+:ThemeSelect        " Interactive theme selector with live preview
+:SmearCursorToggle  " Toggle animated cursor effect
+:XcodebuildSetup    " Setup xcodebuild.nvim for current project
+```
 
-1. Add LSP configuration in `lua/plugins/lsp.lua`
-2. Add formatting rules in `lua/plugins/conform.lua`
-3. Add file-type specific settings in `ftplugin/`
+## Troubleshooting
 
-### Modifying Key Mappings
+### LSP Not Working
 
-Edit `lua/config/keymaps.lua` to customize key bindings.
+```vim
+:LspInfo       " Check if server is attached
+:LspRestart    " Restart all LSP servers
+:Mason         " Verify tool is installed
+:checkhealth   " Full diagnostics
+```
 
-### Changing Theme
+### C# / Roslyn
 
-Edit `lua/plugins/colorscheme.lua` to change the color scheme.
+- First time opening a `.cs` file: Roslyn downloads ~200MB. Wait 30-60 seconds.
+- `:LspInfo` should show `roslyn`, not `omnisharp`
+- If download fails: check `dotnet --version`, needs >= 8.0
 
-## 🧪 Testing Your Setup
-
-### Swift Package Testing
-
-1. Navigate to a Swift package directory
-2. Open Neovim: `nvim Package.swift`
-3. Test LSP: Place cursor on a Swift identifier and press `K`
-4. Test building: `:XcodebuildBuild`
-5. Test formatting: `<leader>f`
-
-### Web Development Testing
-
-1. Open a TypeScript/React project
-2. Test auto-completion and imports
-3. Test Tailwind CSS class completion
-4. Test formatting on save
-
-## 🐛 Troubleshooting
-
-### Swift LSP Not Working
-
-1. Verify sourcekit-lsp is available: `which sourcekit-lsp`
-2. Check if Xcode Command Line Tools are installed: `xcode-select -p`
-3. Restart Neovim and check `:LspInfo`
-
-### Node.js LSP Issues
-
-1. Verify Node.js installation: `node --version`
-2. Check if typescript is installed globally: `npm list -g typescript`
-3. Restart the LSP: `:LspRestart`
-
-### Package Dependencies
-
-Some Swift packages may require authentication. Configure your git credentials:
+### Swift / iOS
 
 ```bash
-git config --global credential.helper osxkeychain
+# Verify sourcekit-lsp is available
+/usr/bin/sourcekit-lsp --version
+
+# For Xcode projects: generate buildServer.json
+cd /path/to/project
+xcode-build-server config -scheme MyScheme -workspace MyApp.xcworkspace
 ```
 
-## 📋 System Requirements
+```vim
+:LspInfo     " sourcekit should appear
+```
 
-- **macOS**: Required for Swift/SwiftUI development
-- **Neovim**: >= 0.9.0
-- **Git**: Latest version
-- **Node.js**: >= 16.x (for TypeScript/JavaScript)
-- **Python**: >= 3.8 (for Python LSP)
-- **Xcode Command Line Tools**: Latest version
+### Kotlin / Android
 
-## 🤝 Contributing
+```vim
+" Open a .kt file and wait for Mason to auto-install kotlin-language-server
+:Mason       " Check installation status
+:LspInfo     " kotlin_language_server should appear
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+### AI (Claude Code / Codex)
 
-## 📄 License
+```bash
+# Verify CLIs are in PATH
+claude --version
+codex --version
 
-This configuration is provided as-is under the MIT License.
+# Install Codex if missing
+npm install -g @openai/codex
+```
 
-## 🔗 Useful Resources
+```vim
+<leader>ac   " Should open Claude Code panel
+<leader>ao   " Should open Codex panel
+```
 
-- [Neovim Documentation](https://neovim.io/doc/)
-- [xcodebuild.nvim Wiki](https://github.com/wojciech-kulik/xcodebuild.nvim)
-- [Swift.org](https://swift.org)
-- [Lazy.nvim](https://github.com/folke/lazy.nvim)
+### Performance Issues
+
+```vim
+" Check file size
+:echo getfsize(expand('%'))
+
+" Check active LSPs
+:LspInfo
+
+" Temporarily disable treesitter
+:TSBufToggle highlight
+
+" Stop specific LSP
+:LspStop ts_ls
+
+" Restart all LSPs
+:LspRestart
+```
+
+For TypeScript projects: add large directories to `excludeDirectories` in `lua/plugins/lsp.lua` (ts_ls config, `watchOptions.excludeDirectories`).
+
+## System Requirements
+
+| Component | Minimum |
+|-----------|---------|
+| Neovim | >= 0.11 |
+| Node.js | >= 18.x |
+| Python | >= 3.10 |
+| .NET SDK | >= 8.0 (for C#) |
+| Xcode | Latest (for iOS/Swift) |
+| macOS | Required for iOS/Swift |
 
 ---
 
-**Last Updated**: January 2025
+**Last Updated**: February 2026

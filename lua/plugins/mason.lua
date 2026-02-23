@@ -31,7 +31,7 @@ return {
           "eslint-lsp",            -- ESLint (requires: npm)
           "tailwindcss-language-server", -- Tailwind CSS (requires: npm)
           "python-lsp-server",     -- Python (requires: pip3)
-          "omnisharp",             -- C# / .NET (requires: dotnet)
+          "kotlin-language-server", -- Kotlin/Android (JetBrains, incluye JRE propio)
           "css-lsp",               -- CSS (requires: npm)
           "html-lsp",              -- HTML (requires: npm)
           "json-lsp",              -- JSON (requires: npm)

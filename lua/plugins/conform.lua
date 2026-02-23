@@ -29,9 +29,15 @@ return {
 
         -- C# / .NET
         cs = { "csharpier" },
-        
+
+        -- Swift / iOS (swiftformat en /opt/homebrew/bin/swiftformat)
+        swift = { "swiftformat" },
+
+        -- Kotlin / Android (ktlint via Mason o fallback a LSP format)
+        kotlin = { "ktlint" },
+
       },
-      
+
       -- Format on save configuration
       format_on_save = function(bufnr)
         -- Disable with a global or buffer-local variable
@@ -46,7 +52,12 @@ return {
       end,
       
       -- Define custom formatters
-      formatters = {},
+      formatters = {
+        swiftformat = {
+          -- swiftformat está en PATH vía /opt/homebrew/bin
+          prepend_args = { "--swiftversion", "5.10" },
+        },
+      },
     })
     
     -- Create commands for formatting control

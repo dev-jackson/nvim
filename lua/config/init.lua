@@ -6,3 +6,6 @@ require "config.keymaps"
 vim.defer_fn(function()
   require("config.theme_persistence").init()
 end, 100)
+
+-- Bootstrap: first-run setup + tool verification on every launch
+require("config.bootstrap").init()
