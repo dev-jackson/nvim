@@ -1,2 +1,3 @@
 lazy-lock.json
 .vscode/settings.json
+tests/fixtures/swift/.build/
