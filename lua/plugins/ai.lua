@@ -118,4 +118,40 @@ return {
     },
     event = "VeryLazy",
   },
+
+  -- ============================================================================
+  -- OPENCODE.NVIM: Integración opencode CLI con Neovim
+  -- Agente AI terminal-nativo con soporte multi-proveedor (Claude, GPT, Ollama…)
+  --
+  -- Flujo de trabajo:
+  --   1. Abrir opencode: <leader>aO
+  --   2. Hacer pregunta con contexto del archivo actual: <leader>ai
+  --   3. Selección visual + <leader>ai → envía el fragmento como contexto
+  --   4. Librería de prompts integrados: <leader>aL
+  --
+  -- Contextos disponibles: @this, @buffer, @buffers, @diagnostics, @diff, etc.
+  -- Requiere: `opencode` CLI en PATH → https://opencode.ai
+  -- ============================================================================
+  {
+    "nickjvandyke/opencode.nvim",
+    version = "*",
+    dependencies = {
+      "folke/snacks.nvim",  -- ya incluido arriba
+    },
+    config = function()
+      -- Recargar archivos automáticamente cuando opencode los modifique
+      vim.o.autoread = true
+      vim.g.opencode_opts = {}
+    end,
+    keys = {
+      -- Toggle panel opencode
+      { "<leader>aO", function() require("opencode").toggle() end,  desc = "OpenCode: Toggle" },
+      -- Ask con contexto del archivo/selección actual
+      { "<leader>ai", function() require("opencode").ask("@this ") end, desc = "OpenCode: Ask" },
+      { "<leader>ai", function() require("opencode").ask("@this ") end, mode = "v", desc = "OpenCode: Ask (selección)" },
+      -- Librería de prompts integrados (fix, review, test, explain…)
+      { "<leader>aL", function() require("opencode").select() end,  desc = "OpenCode: Prompt library" },
+    },
+    event = "VeryLazy",
+  },
 }

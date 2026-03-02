@@ -92,6 +92,9 @@ local function get_missing_tools()
   if not cmd_exists("codex") then
     table.insert(missing, { tool = "codex", hint = "npm install -g @openai/codex" })
   end
+  if not cmd_exists("opencode") then
+    table.insert(missing, { tool = "opencode", hint = "https://opencode.ai" })
+  end
 
   -- macOS only: herramientas Swift/iOS + tree-sitter CLI
   if vim.fn.has("mac") == 1 then
@@ -128,6 +131,7 @@ local function show_tool_status()
     { "dotnet",             "dotnet",                   ".NET SDK (Roslyn LSP / CSharpier)" },
     { "claude",             "claude",                   "Claude Code CLI" },
     { "codex",              "codex",                    "OpenAI Codex CLI" },
+    { "opencode",           "opencode",                 "OpenCode AI coding agent" },
   }
 
   -- macOS-only tools

@@ -145,7 +145,16 @@ else
   fi
 fi
 echo ""
-echo "   En Neovim: <leader>ac (Claude Code) | <leader>ao (Codex)"
+echo "   3. OpenCode CLI:"
+if command_exists opencode; then
+  echo "   ✅ opencode CLI found: $(which opencode)"
+else
+  echo "   ⚠️  opencode CLI not found."
+  echo "      Install: curl -fsSL https://opencode.ai/install.sh | sh"
+  echo "      Or via brew: brew install opencode/tap/opencode"
+fi
+echo ""
+echo "   En Neovim: <leader>ac (Claude Code) | <leader>ao (Codex) | <leader>aO (OpenCode)"
 
 echo ""
 echo "✨ Installation complete!"
