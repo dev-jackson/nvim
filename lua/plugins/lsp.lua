@@ -183,33 +183,13 @@ return {
 
     -- Swift / iOS (sourcekit-lsp en /usr/bin/sourcekit-lsp vía Xcode)
     -- Para proyectos Xcode: ejecutar xcode-build-server config en el directorio del proyecto
-    vim.lsp.config('sourcekit', {
-      filetypes = { 'swift', 'objective-c', 'objective-cpp' },
-      root_dir = function(fname)
-        local util = require('lspconfig.util')
-        return util.root_pattern(
-          'buildServer.json',  -- generado por xcode-build-server
-          '*.xcodeproj',
-          '*.xcworkspace',
-          'Package.swift',
-          '.git'
-        )(fname)
-      end,
-    })
+    -- root_dir y filetypes heredados de lspconfig (usa firma Neovim 0.11: function(bufnr, on_dir))
+    vim.lsp.config('sourcekit', {})
 
     -- Kotlin / Android (kotlin-language-server via Mason)
     -- Docs: https://github.com/fwcd/kotlin-language-server
+    -- root_dir heredado de lspconfig (usa root_markers, firma Neovim 0.11 nativa)
     vim.lsp.config('kotlin_language_server', {
-      root_dir = function(fname)
-        local util = require('lspconfig.util')
-        return util.root_pattern(
-          'settings.gradle',
-          'settings.gradle.kts',
-          'build.gradle',
-          'build.gradle.kts',
-          '.git'
-        )(fname)
-      end,
       -- init_options: SOLO acepta storagePath (según Configuration.kt)
       init_options = {
         storagePath = vim.fn.stdpath('cache') .. '/kotlin-language-server',
@@ -265,9 +245,9 @@ return {
     -- Python
     enable_lsp_for_filetype('python', 'pylsp')
 
-    -- Swift / iOS
+    -- Swift / iOS (filetypes que Neovim asigna: objc no objective-c)
     enable_lsp_for_filetype(
-      { 'swift', 'objective-c', 'objective-cpp' },
+      { 'swift', 'objc', 'objcpp', 'c', 'cpp' },
       'sourcekit'
     )
 
