@@ -15,7 +15,7 @@ return {
     },
     config = function()
       require("xcodebuild").setup({
-        project_marks_path = vim.fn.expanduser("~/.local/share/nvim/xcodebuild/"),
+        project_marks_path = vim.fn.expand("~/.local/share/nvim/xcodebuild/"),
         code_coverage = {
           enabled = false,
         },
