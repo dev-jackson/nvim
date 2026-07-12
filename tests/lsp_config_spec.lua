@@ -241,71 +241,32 @@ describe("lsp.lua › sourcekit (Swift/iOS)", function()
 
 end)
 
--- ── Kotlin / Android LSP ─────────────────────────────────────────────────────
+-- ── Kotlin / Android LSP (JetBrains kotlin-lsp) ──────────────────────────────
 
-describe("lsp.lua › kotlin_language_server", function()
+describe("lsp.lua › kotlin_lsp (JetBrains)", function()
 
   before_each(ensure_loaded)
 
   it("is configured (vim.lsp.config was called for it)", function()
-    assert.is_not_nil(captured["kotlin_language_server"],
-      "kotlin_language_server must be registered with vim.lsp.config()")
+    assert.is_not_nil(captured["kotlin_lsp"],
+      "kotlin_lsp must be registered with vim.lsp.config()")
   end)
 
-  it("init_options does NOT contain externalSources  [regression]", function()
-    local init_opts = captured["kotlin_language_server"].init_options or {}
-    assert.is_nil(init_opts.externalSources,
-      "externalSources must live in settings.kotlin, NOT in init_options")
+  it("does not carry fwcd-specific init_options.storagePath [regression]", function()
+    local init_opts = captured["kotlin_lsp"].init_options or {}
+    assert.is_nil(init_opts.storagePath,
+      "storagePath is fwcd schema — must not be sent to JetBrains kotlin-lsp")
   end)
 
-  it("init_options only contains storagePath", function()
-    local init_opts = captured["kotlin_language_server"].init_options or {}
-    local keys = vim.tbl_keys(init_opts)
-    assert.are.equal(1, #keys,
-      "init_options should have exactly 1 key (storagePath), found: " .. vim.inspect(keys))
-    assert.are.equal("storagePath", keys[1])
+  it("does not carry fwcd settings.kotlin schema [regression]", function()
+    local settings = captured["kotlin_lsp"].settings or {}
+    assert.is_nil(settings.kotlin,
+      "settings.kotlin.* is fwcd schema — must not be sent to JetBrains kotlin-lsp")
   end)
 
-  it("storagePath ends with 'kotlin-language-server'", function()
-    local sp = (captured["kotlin_language_server"].init_options or {}).storagePath
-    assert.is_not_nil(sp)
-    assert.truthy(sp:match("kotlin%-language%-server$"),
-      "storagePath should end with kotlin-language-server, got: " .. tostring(sp))
-  end)
-
-  it("settings.kotlin.externalSources exists", function()
-    local k = (captured["kotlin_language_server"].settings or {}).kotlin or {}
-    assert.is_not_nil(k.externalSources,
-      "externalSources must be in settings.kotlin")
-  end)
-
-  it("externalSources.useKlsScheme is false", function()
-    local ext = captured["kotlin_language_server"].settings.kotlin.externalSources
-    assert.is_false(ext.useKlsScheme)
-  end)
-
-  it("externalSources.autoConvertToKotlin is true", function()
-    local ext = captured["kotlin_language_server"].settings.kotlin.externalSources
-    assert.is_true(ext.autoConvertToKotlin)
-  end)
-
-  -- root_dir delegated to lspconfig (uses root_markers, Neovim 0.11 native approach)
-  it("does not override root_dir (uses lspconfig root_markers)", function()
-    assert.is_nil(captured["kotlin_language_server"].root_dir,
-      "kotlin root_dir should be nil — lspconfig handles it via root_markers")
-  end)
-
-  it("inlayHints are all enabled", function()
-    local hints = captured["kotlin_language_server"].settings.kotlin.inlayHints
-    assert.is_not_nil(hints)
-    assert.is_true(hints.typeHints.enable)
-    assert.is_true(hints.parameterHints.enable)
-    assert.is_true(hints.chainedHints.enable)
-  end)
-
-  it("completion.snippets.enabled is true", function()
-    local c = captured["kotlin_language_server"].settings.kotlin.completion
-    assert.is_true(c.snippets.enabled)
+  it("does not override cmd/root_dir (hereda de lspconfig lsp/kotlin_lsp.lua)", function()
+    assert.is_nil(captured["kotlin_lsp"].cmd)
+    assert.is_nil(captured["kotlin_lsp"].root_dir)
   end)
 
 end)

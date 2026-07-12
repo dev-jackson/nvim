@@ -191,32 +191,33 @@ return {
     -- root_dir y filetypes heredados de lspconfig (usa firma Neovim 0.11: function(bufnr, on_dir))
     vim.lsp.config('sourcekit', {})
 
-    -- Kotlin / Android (kotlin-language-server via Mason)
-    -- Docs: https://github.com/fwcd/kotlin-language-server
-    -- root_dir heredado de lspconfig (usa root_markers, firma Neovim 0.11 nativa)
-    vim.lsp.config('kotlin_language_server', {
-      -- init_options: SOLO acepta storagePath (según Configuration.kt)
-      init_options = {
-        storagePath = vim.fn.stdpath('cache') .. '/kotlin-language-server',
-      },
-      settings = {
-        kotlin = {
-          -- compiler.jvm.target omitted: LSP reads it from build.gradle.kts
-          externalSources = {
-            useKlsScheme        = false,  -- decompiler estándar (compatible con Neovim)
-            autoConvertToKotlin = true,   -- bytecode Java → Kotlin (legible)
-          },
-          inlayHints = {
-            typeHints      = { enable = true },
-            parameterHints = { enable = true },
-            chainedHints   = { enable = true },
-          },
-          completion = {
-            snippets = { enabled = true },
-          },
-        },
-      },
-    })
+    -- Kotlin / Android (JetBrains kotlin-lsp oficial, basado en IntelliJ)
+    -- Docs: https://github.com/Kotlin/kotlin-lsp
+    -- cmd (intellij-server --stdio), filetypes y root_markers heredados de
+    -- lspconfig (lsp/kotlin_lsp.lua). Trae su propio JBR embebido.
+    -- NOTA: el schema de settings de fwcd (settings.kotlin.*) NO aplica aquí.
+    vim.lsp.config('kotlin_lsp', {})
+
+    -- Fallback: si kotlin-lsp falla, descomentar este bloque y cambiar
+    -- 'kotlin_lsp' por 'kotlin_language_server' en vim.lsp.enable().
+    -- OJO: fwcd kotlin-language-server crashea con Java 25 (IllegalArgumentException
+    -- al parsear la versión); requiere JDK ≤21 en PATH.
+    -- vim.lsp.config('kotlin_language_server', {
+    --   init_options = {
+    --     storagePath = vim.fn.stdpath('cache') .. '/kotlin-language-server',
+    --   },
+    --   settings = {
+    --     kotlin = {
+    --       externalSources = { useKlsScheme = false, autoConvertToKotlin = true },
+    --       inlayHints = {
+    --         typeHints = { enable = true },
+    --         parameterHints = { enable = true },
+    --         chainedHints = { enable = true },
+    --       },
+    --       completion = { snippets = { enabled = true } },
+    --     },
+    --   },
+    -- })
 
     -- ========================================
     -- Enable language servers
@@ -237,7 +238,7 @@ return {
       -- Swift / iOS
       'sourcekit',
       -- Kotlin / Android
-      'kotlin_language_server',
+      'kotlin_lsp',
     })
 
     -- ========================================

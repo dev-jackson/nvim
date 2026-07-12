@@ -32,7 +32,7 @@ return {
           "tailwindcss-language-server", -- Tailwind CSS (requires: npm)
           "pyright",               -- Python (type checking)
           "ruff",                  -- Python (lint + format + imports, vía ruff server)
-          "kotlin-language-server", -- Kotlin/Android (JetBrains, incluye JRE propio)
+          "kotlin-lsp",            -- Kotlin/Android (JetBrains oficial, incluye JBR propio)
           "css-lsp",               -- CSS (requires: npm)
           "html-lsp",              -- HTML (requires: npm)
           "json-lsp",              -- JSON (requires: npm)

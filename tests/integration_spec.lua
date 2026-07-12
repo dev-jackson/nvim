@@ -69,11 +69,11 @@ describe("integration › sourcekit", function()
   end)
 end)
 
--- ── Kotlin (lento: JVM startup ~30-60s) ──────────────────────────────────────
-describe("integration › kotlin_language_server", function()
+-- ── Kotlin (JetBrains kotlin-lsp; lento: warmup IntelliJ ~30-90s) ────────────
+describe("integration › kotlin_lsp", function()
   it("attaches to a Kotlin file [slow]", function()
-    if not has_binary("kotlin-language-server") then pending("kotlin-language-server not installed") return end
+    if not has_binary("intellij-server") then pending("kotlin-lsp (intellij-server) not installed") return end
     local buf = open(fixtures .. "/kotlin/src/main/kotlin/Main.kt")
-    assert.is_true(wait_for_lsp(buf, "kotlin_language_server", 60000), "kotlin LSP did not attach in 60s")
+    assert.is_true(wait_for_lsp(buf, "kotlin_lsp", 90000), "kotlin_lsp did not attach in 90s")
   end)
 end)

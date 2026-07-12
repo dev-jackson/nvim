@@ -100,7 +100,7 @@ fi
 
 # Kotlin / Android
 echo ""
-echo "🤖 Kotlin/Android: kotlin-language-server se instala via Mason automáticamente."
+echo "🤖 Kotlin/Android: kotlin-lsp (JetBrains) se instala via Mason automáticamente."
 echo "   Abre un archivo .kt en Neovim y Mason lo instalará."
 
 # AI: Claude Code CLI + OpenAI Codex CLI
