@@ -1,3 +1,7 @@
 lazy-lock.json
 .vscode/settings.json
 tests/fixtures/swift/.build/
+
+# Artefactos de Gradle generados por los tests de integración kotlin
+tests/fixtures/kotlin/.gradle/
+tests/fixtures/kotlin/build/
