@@ -214,48 +214,26 @@ return {
     })
 
     -- ========================================
-    -- Enable language servers on-demand by filetype
+    -- Enable language servers
     -- ========================================
-    -- This loads servers only when needed, improving startup time
+    -- vim.lsp.enable() ya es lazy: solo registra autocmds FileType y el server
+    -- arranca al abrir un buffer compatible. Envolverlo en otro autocmd FileType
+    -- (patrón anterior) impedía el attach al PRIMER buffer de cada filetype:
+    -- enable() llamado durante el evento FileType no attachea al buffer que lo disparó.
 
-    local function enable_lsp_for_filetype(filetypes, servers)
-      vim.api.nvim_create_autocmd('FileType', {
-        pattern = filetypes,
-        callback = function()
-          vim.lsp.enable(servers)
-        end,
-        once = false,
-      })
-    end
-
-    -- Lua (always load for Neovim config)
-    vim.lsp.enable('lua_ls')
-
-    -- Web development
-    enable_lsp_for_filetype(
-      {'typescript', 'javascript', 'typescriptreact', 'javascriptreact'},
-      {'ts_ls', 'eslint'}
-    )
-
-    enable_lsp_for_filetype(
-      {'html', 'css', 'scss', 'vue', 'svelte'},
-      {'tailwindcss', 'cssls', 'html'}
-    )
-
-    -- Python
-    enable_lsp_for_filetype('python', 'pylsp')
-
-    -- Swift / iOS (filetypes que Neovim asigna: objc no objective-c)
-    enable_lsp_for_filetype(
-      { 'swift', 'objc', 'objcpp', 'c', 'cpp' },
-      'sourcekit'
-    )
-
-    -- Kotlin / Android
-    enable_lsp_for_filetype('kotlin', 'kotlin_language_server')
-
-    -- JSON
-    enable_lsp_for_filetype('json', 'jsonls')
+    vim.lsp.enable({
+      -- Lua (config de Neovim)
+      'lua_ls',
+      -- Web
+      'ts_ls', 'eslint',
+      'tailwindcss', 'cssls', 'html', 'jsonls',
+      -- Python
+      'pylsp',
+      -- Swift / iOS
+      'sourcekit',
+      -- Kotlin / Android
+      'kotlin_language_server',
+    })
 
     -- ========================================
     -- Performance optimizations for large projects
