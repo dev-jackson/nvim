@@ -2,8 +2,9 @@ return {
   "neovim/nvim-lspconfig",
   priority = 98,
   dependencies = {
-    "williamboman/mason.nvim",
-    "folke/neodev.nvim",
+    "mason-org/mason.nvim",
+    -- lazydev reemplaza a neodev (EOL): tipos de la API de nvim para lua_ls
+    { "folke/lazydev.nvim", ft = "lua", opts = {} },
     "hrsh7th/cmp-nvim-lsp",
   },
   config = function()
@@ -45,9 +46,6 @@ return {
         vim.lsp.buf.format({ async = true })
       end, opts)
     end
-
-    -- Setup neodev for lua development
-    require("neodev").setup()
 
     -- ========================================
     -- Performance: Directory Exclusions

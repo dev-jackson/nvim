@@ -12,7 +12,6 @@ local captured = {}  -- will hold configs passed to vim.lsp.config()
 local function load_lsp_plugin()
   -- Stubs for modules not available in the minimal test environment
   package.loaded['cmp_nvim_lsp'] = { default_capabilities = function() return {} end }
-  package.loaded['neodev']       = { setup = function() end }
 
   -- Save originals
   local orig = {
@@ -53,7 +52,6 @@ local function load_lsp_plugin()
   vim.api.nvim_create_autocmd = orig.nvim_create_autocmd
 
   package.loaded['cmp_nvim_lsp'] = nil
-  package.loaded['neodev']       = nil
 end
 
 -- ── setup (run once for the whole file) ──────────────────────────────────────

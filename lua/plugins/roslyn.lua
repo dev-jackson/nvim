@@ -6,9 +6,9 @@ return {
   -- Requiere: dotnet SDK instalado (confirmado en /opt/homebrew/bin/dotnet)
   -- ============================================================================
   {
-    "seblj/roslyn.nvim",
+    "seblyng/roslyn.nvim",
     ft = "cs",
-    dependencies = { "williamboman/mason.nvim" },
+    dependencies = { "mason-org/mason.nvim" },
     config = function()
       require("roslyn").setup({
         config = {

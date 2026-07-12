@@ -13,7 +13,6 @@ vim.opt.backup   = false
 
 -- Stubs for unused deps
 package.loaded['cmp_nvim_lsp'] = { default_capabilities = function() return {} end }
-package.loaded['neodev']       = { setup = function() end }
 
 -- Run the real LSP plugin config → sets up vim.lsp.config() + FileType autocmds
 local spec = assert(loadfile(config_dir .. "/lua/plugins/lsp.lua"))()

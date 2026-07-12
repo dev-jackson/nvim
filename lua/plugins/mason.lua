@@ -1,7 +1,7 @@
 return {
   -- Mason: Package manager for LSP servers, formatters, linters
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     config = function()
       require("mason").setup({
         ui = {
@@ -19,7 +19,7 @@ return {
   -- Note: In Neovim 0.11+, we use vim.lsp.config() directly instead of mason-lspconfig
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    dependencies = { "williamboman/mason.nvim" },
+    dependencies = { "mason-org/mason.nvim" },
     config = function()
       require("mason-tool-installer").setup({
         -- Automatically install these tools
