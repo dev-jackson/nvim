@@ -43,12 +43,20 @@ describe("integration › ts_ls", function()
   end)
 end)
 
--- ── Python ────────────────────────────────────────────────────────────────────
-describe("integration › pylsp", function()
+-- ── Python (pyright + ruff) ──────────────────────────────────────────────────
+describe("integration › pyright", function()
   it("attaches to a Python file", function()
-    if not has_binary("pylsp") then pending("pylsp not installed") return end
+    if not has_binary("pyright-langserver") then pending("pyright not installed") return end
     local buf = open(fixtures .. "/python/main.py")
-    assert.is_true(wait_for_lsp(buf, "pylsp", 10000), "pylsp did not attach in 10s")
+    assert.is_true(wait_for_lsp(buf, "pyright", 10000), "pyright did not attach in 10s")
+  end)
+end)
+
+describe("integration › ruff", function()
+  it("attaches to a Python file", function()
+    if not has_binary("ruff") then pending("ruff not installed") return end
+    local buf = open(fixtures .. "/python/main.py")
+    assert.is_true(wait_for_lsp(buf, "ruff", 10000), "ruff did not attach in 10s")
   end)
 end)
 

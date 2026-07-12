@@ -30,7 +30,8 @@ return {
           "typescript-language-server", -- TypeScript/JavaScript (requires: npm)
           "eslint-lsp",            -- ESLint (requires: npm)
           "tailwindcss-language-server", -- Tailwind CSS (requires: npm)
-          "python-lsp-server",     -- Python (requires: pip3)
+          "pyright",               -- Python (type checking)
+          "ruff",                  -- Python (lint + format + imports, vía ruff server)
           "kotlin-language-server", -- Kotlin/Android (JetBrains, incluye JRE propio)
           "css-lsp",               -- CSS (requires: npm)
           "html-lsp",              -- HTML (requires: npm)
@@ -39,13 +40,10 @@ return {
           -- Formatters
           "prettier",              -- JS/TS/HTML/CSS/JSON (requires: npm)
           "stylua",                -- Lua
-          "black",                 -- Python (requires: pip3)
-          "isort",                 -- Python imports (requires: pip3)
           "csharpier",             -- C# / .NET (requires: dotnet)
           "ktlint",                -- Kotlin linter/formatter (Android)
 
           -- Linters
-          "flake8",                -- Python (requires: pip3)
           "markdownlint",          -- Markdown
         },
         -- Auto-update tools

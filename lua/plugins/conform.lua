@@ -24,8 +24,8 @@ return {
         yaml = { "prettier" },
         markdown = { "prettier" },
         
-        -- Python
-        python = { "black", "isort" },
+        -- Python: ruff reemplaza a black+isort (imports primero, luego formato)
+        python = { "ruff_organize_imports", "ruff_format" },
 
         -- C# / .NET
         cs = { "csharpier" },

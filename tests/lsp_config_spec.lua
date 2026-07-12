@@ -183,29 +183,37 @@ describe("lsp.lua › tailwindcss", function()
 
 end)
 
--- ── Python LSP ───────────────────────────────────────────────────────────────
+-- ── Python LSP (pyright + ruff) ──────────────────────────────────────────────
 
-describe("lsp.lua › pylsp (Python)", function()
+describe("lsp.lua › pyright (Python)", function()
 
   before_each(ensure_loaded)
 
   it("is configured", function()
-    assert.is_not_nil(captured["pylsp"], "pylsp must be registered with vim.lsp.config()")
+    assert.is_not_nil(captured["pyright"], "pyright must be registered with vim.lsp.config()")
   end)
 
-  it("maxLineLength is 100", function()
-    local pycs = captured["pylsp"].settings.pylsp.plugins.pycodestyle
-    assert.are.equal(100, pycs.maxLineLength)
+  it("organizeImports is disabled (ruff owns imports)", function()
+    assert.is_true(captured["pyright"].settings.pyright.disableOrganizeImports)
   end)
 
-  it("pylsp_mypy is disabled (performance)", function()
-    local mypy = captured["pylsp"].settings.pylsp.plugins.pylsp_mypy
-    assert.is_false(mypy.enabled)
+  it("diagnosticMode is openFilesOnly (performance)", function()
+    local analysis = captured["pyright"].settings.python.analysis
+    assert.are.equal("openFilesOnly", analysis.diagnosticMode)
   end)
 
-  it("rope_completion is disabled (performance)", function()
-    local rope = captured["pylsp"].settings.pylsp.plugins.rope_completion
-    assert.is_false(rope.enabled)
+end)
+
+describe("lsp.lua › ruff (Python lint/format)", function()
+
+  before_each(ensure_loaded)
+
+  it("is configured", function()
+    assert.is_not_nil(captured["ruff"], "ruff must be registered with vim.lsp.config()")
+  end)
+
+  it("has an on_attach function (disables hover in favor of pyright)", function()
+    assert.is_function(captured["ruff"].on_attach)
   end)
 
 end)

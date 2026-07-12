@@ -162,21 +162,28 @@ return {
       }
     })
 
-    -- Python LSP
-    vim.lsp.config('pylsp', {
+    -- Python: pyright (inteligencia de tipos) + ruff (diagnósticos/format vía ruff server)
+    vim.lsp.config('pyright', {
       settings = {
-        pylsp = {
-          plugins = {
-            pycodestyle = {
-              ignore = {'W391'},
-              maxLineLength = 100
-            },
-            -- Disable features that scan large directories
-            pylsp_mypy = { enabled = false },
-            rope_completion = { enabled = false }
-          }
-        }
-      }
+        pyright = {
+          disableOrganizeImports = true,  -- ruff se encarga de los imports
+        },
+        python = {
+          analysis = {
+            autoSearchPaths = true,
+            useLibraryCodeForTypes = true,
+            diagnosticMode = 'openFilesOnly',  -- no escanear proyectos grandes completos
+          },
+        },
+      },
+    })
+
+    vim.lsp.config('ruff', {
+      -- on_attach por-server REEMPLAZA al global '*': llamar el compartido explícitamente
+      on_attach = function(client, bufnr)
+        on_attach(client, bufnr)
+        client.server_capabilities.hoverProvider = false  -- hover lo da pyright
+      end,
     })
 
     -- Swift / iOS (sourcekit-lsp en /usr/bin/sourcekit-lsp vía Xcode)
@@ -226,7 +233,7 @@ return {
       'ts_ls', 'eslint',
       'tailwindcss', 'cssls', 'html', 'jsonls',
       -- Python
-      'pylsp',
+      'pyright', 'ruff',
       -- Swift / iOS
       'sourcekit',
       -- Kotlin / Android

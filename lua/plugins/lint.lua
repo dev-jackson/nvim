@@ -12,8 +12,7 @@ return {
       -- typescript = { "eslint_d" },
       -- typescriptreact = { "eslint_d" },
       
-      -- Python
-      python = { "flake8" },
+      -- Python: diagnósticos vía ruff server (LSP), no requiere nvim-lint
 
       -- Markdown
       markdown = { "markdownlint" },

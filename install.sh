@@ -23,22 +23,8 @@ else
   echo "   Install Node.js from: https://nodejs.org"
 fi
 
-# Python dependencies for Python LSP
-if command_exists pip3; then
-  echo "📦 Installing Python packages..."
-  python3 -m venv tempenv
-  source tempenv/bin/activate
-  pip install python-lsp-server \
-    black \
-    isort \
-    flake8
-  deactivate
-  rm -rf tempenv
-  echo "✅ Python packages installed"
-else
-  echo "⚠️  pip3 not found. Skipping Python packages."
-  echo "   Install Python from: https://python.org"
-fi
+# Python: pyright + ruff se instalan via Mason automáticamente (no requiere pip)
+echo "🐍 Python: pyright y ruff se instalan via Mason automáticamente."
 
 # .NET dependencies for C# (CSharpier formatter)
 # Note: Roslyn LSP is managed by roslyn.nvim (descarga automáticamente)
