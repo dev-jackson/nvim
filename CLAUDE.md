@@ -4,256 +4,122 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Neovim configuration for multi-language development: TypeScript/JavaScript (React), Python, C#/.NET, Lua, HTML/CSS/Tailwind. Uses Lazy.nvim for plugin management with modular configuration structure.
+Neovim configuration (Neovim 0.11+) for multi-language development: TypeScript/JavaScript (React), Python, C#/.NET, Swift/iOS, Kotlin/Android, Lua, HTML/CSS/Tailwind. Uses Lazy.nvim for plugin management with modular configuration.
 
-**Note**: Swift/iOS development support was previously included but has been removed as of recent commits. This configuration now focuses on web development, Python, C#, and Lua.
+## Commands
+
+### Tests
+
+```bash
+make test              # syntax check + unit tests (fast, default)
+make test-syntax       # loadfile() every file under lua/
+make test-unit         # plenary tests, no LSP servers needed (tests/lsp_config_spec.lua)
+make test-integration  # real LSP servers via Mason; slow (up to 60s for Kotlin)
+```
+
+Tests run headless Neovim with plenary.busted. Unit tests bootstrap via `tests/minimal_init.lua` (plenary + lspconfig on rtp only); integration tests via `tests/lsp_integration_init.lua`, which stubs `cmp_nvim_lsp`/`neodev`, prepends Mason bin to PATH, and executes the real `lua/plugins/lsp.lua` config. Test fixtures per language live in `tests/fixtures/{typescript,python,swift,kotlin,lua}`.
+
+Run a single spec file:
+```bash
+nvim --headless --noplugin -u tests/minimal_init.lua \
+  -c "lua require('plenary.busted').run(vim.fn.getcwd() .. '/tests/lsp_config_spec.lua')"
+```
+
+### First-Time Setup
+
+```bash
+./install.sh   # installs npm/pip3/dotnet system packages LSP servers need
+```
+
+Mason auto-installs LSP servers/formatters/linters on startup (3s delay) via `mason-tool-installer.nvim` — the `ensure_installed` list is in `lua/plugins/mason.lua`.
+
+### Status / Debugging
+
+```vim
+:Lazy                " Plugin manager UI
+:Mason               " LSP/formatter installer UI
+:LspInfo             " Active LSP servers
+:LspRestart          " Restart LSP servers
+:ConformInfo         " Formatter config
+:checkhealth         " Health checks
+:ThemeSelect         " Theme selector with live preview
+```
 
 ## Architecture
 
 ### Configuration Loading Order
 
-1. `init.lua` - Sets leader keys THEN loads `config` module (critical order!)
-2. `lua/config/init.lua` - Loads settings, lazy, keymaps
-3. `lua/config/lazy.lua` - Bootstraps Lazy.nvim, imports plugins from `lua/plugins/`
-4. Plugin configs in `lua/plugins/*.lua` - Each returns table with setup
+1. `init.lua` — sets `vim.g.mapleader`/`maplocalleader` FIRST (critical — must precede any plugin load), then loads `config` module. Also defines `:ThemeSelect` and `:Jackson` user commands.
+2. `lua/config/init.lua` — loads settings, lazy, keymaps
+3. `lua/config/lazy.lua` — bootstraps Lazy.nvim, imports every file in `lua/plugins/`
+4. `lua/plugins/*.lua` — each returns a Lazy plugin spec (URL, dependencies, config function)
 
-**Important**: `vim.g.mapleader` and `vim.g.maplocalleader` MUST be set in `init.lua` before loading any plugins
+### LSP Setup (`lua/plugins/lsp.lua`)
 
-### Key Patterns
+Uses the Neovim 0.11+ native API — `vim.lsp.config()` to configure, `vim.lsp.enable()` to activate. **No mason-lspconfig.** Global `on_attach` + capabilities applied to every server via `vim.lsp.config('*', {...})`.
 
-**Plugin Structure**: Each plugin file returns table with URL, dependencies, config function
+Servers load lazily per filetype: a `FileType` autocmd (`enable_lsp_for_filetype`) calls `vim.lsp.enable()` only when a matching buffer opens. Only `lua_ls` is enabled at startup.
 
-**LSP Setup**: `lua/plugins/lsp.lua` uses Neovim 0.11+ modern API with `vim.lsp.config()` for configuration and `vim.lsp.enable()` to activate servers. Global config via `vim.lsp.config('*', {...})` applies `on_attach` and `capabilities` to all servers
+- `ts_ls` + `eslint` — TS/JS; ESLint auto-fixes on save (`EslintFixAll` in a `BufWritePre` autocmd), flat-config (ESLint 9+) enabled
+- `pylsp` — Python
+- `sourcekit` — Swift/ObjC/C/C++; config intentionally empty `{}` — root_dir/filetypes inherit lspconfig defaults (Neovim 0.11 `function(bufnr, on_dir)` signature). For Xcode projects run `xcode-build-server config` in the project dir first.
+- `kotlin_language_server` — Kotlin; `init_options` accepts ONLY `storagePath` (everything else goes under `settings.kotlin`). root_dir inherits lspconfig root_markers. JVM target read from build.gradle.kts.
+- `tailwindcss`, `cssls`, `html`, `jsonls` — web
 
-**Formatters**: `lua/plugins/conform.lua` manages format-on-save by filetype. Enabled by default, disable with `:FormatDisable` (buffer) or `:FormatDisable!` (global)
+**C# is the exception**: uses `roslyn.nvim` (`lua/plugins/roslyn.lua`), NOT configured in lsp.lua and NOT omnisharp. Auto-downloads Microsoft.CodeAnalysis.LanguageServer via dotnet (~200MB first run).
 
-**Tree-sitter**: Auto-installs parsers on buffer enter. Provides syntax highlighting, text objects, auto-tagging for HTML/JSX
+### Formatting (`lua/plugins/conform.lua`)
 
-**Theme System**: Custom theme selector (`init.lua:33-151`) with live preview and persistence. Themes stored in `config.theme_persistence`, sample code in `config.theme_preview`
+Format-on-save enabled by default, 500ms timeout, `lsp_fallback = true`. Disable with `:FormatDisable` (buffer) / `:FormatDisable!` (global), re-enable with `:FormatEnable`, manual format `<leader>mp`.
 
-**Plugin Architecture**: All plugins in `lua/plugins/*.lua` return a table with URL, dependencies, and config function. Mason auto-installs tools on startup with 3-second delay
+- prettier (web), stylua (Lua), black+isort (Python), csharpier (C#), swiftformat (Swift, `--swiftversion 5.10`)
+- **Kotlin deliberately absent**: ktlint's JVM startup exceeds the 500ms timeout, so Kotlin format-on-save falls through to LSP. Run ktlint manually if needed.
 
-## Language Support
+### Mobile Development
 
-### TypeScript/JavaScript/React
-- **LSP**: ts_ls (typescript-language-server)
-- **Linter**: eslint (auto-fix on save)
-- **Formatter**: prettier
-- **Install**: `:MasonInstall typescript-language-server eslint-lsp prettier`
+- **iOS**: `lua/plugins/ios.lua` — xcodebuild.nvim, keymaps `<leader>X*` (build/run/test/scheme/device). Requires xcode-build-server + xcbeautify. First time per project: `:XcodebuildSetup`.
+- **Android**: `lua/plugins/android.lua` — android-nvim-plugin, keymaps `<leader>A*` (build/run/logcat/gradle). Requires `ANDROID_HOME`. First time per project: `:AndroidMenu`.
 
-### Python
-- **LSP**: pylsp (python-lsp-server)
-- **Linter**: flake8
-- **Formatter**: black, isort
-- **Install**: `:MasonInstall python-lsp-server flake8 black isort`
-- **Better option**: pyright + ruff (faster, modern)
-  - `:MasonInstall pyright ruff ruff-lsp`
-  - Update lsp.lua to use pyright, conform.lua to use ruff
+### AI Agent Integrations (`lua/plugins/ai.lua`)
 
-### C# / .NET
-- **LSP**: omnisharp-roslyn
-- **Formatter**: csharpier (opinionated like prettier)
-- **Install**: `:MasonInstall omnisharp csharpier`
-- **Tree-sitter**: `:TSInstall c_sharp`
-- **Setup**: Add to lsp.lua:
-  ```lua
-  lspconfig.omnisharp.setup({
-    on_attach = on_attach,
-    capabilities = lsp_capabilities,
-  })
-  ```
-- **Formatter**: Add to conform.lua formatters_by_ft:
-  ```lua
-  cs = { "csharpier" }
-  ```
+Three terminal-panel agents, all backed by snacks.nvim terminals; changes appear as diffs to accept/reject:
 
-### HTML/CSS/Tailwind
-- **LSP**: tailwindcss, cssls, html
-- **Formatter**: prettier
-- **Install**: `:MasonInstall tailwindcss-language-server css-lsp html-lsp`
-- **Note**: tailwind-tools.nvim removed (archived, caused deprecation warnings)
+- **claudecode.nvim** — `<leader>ac` toggle (right panel), `<leader>as` send selection, `<leader>ay`/`<leader>an` accept/reject diff
+- **codex.nvim** — `<leader>ao` toggle (left panel), `<leader>ae` send selection; `auto_start = false` on purpose (avoids EADDRINUSE from stale port)
+- **opencode.nvim** — `<leader>aO` toggle, `<leader>ai` ask with `@this` context, `<leader>aL` prompt library
 
-### Lua (Neovim config)
-- **LSP**: lua_ls
-- **Formatter**: stylua
-- **Install**: `:MasonInstall lua-language-server stylua`
+### Theme System
 
-## Common Commands
+Custom selector in `init.lua` (`:ThemeSelect`): Telescope picker with live preview using sample code from `lua/config/theme_preview.lua`; selection persisted/restored by `lua/config/theme_persistence.lua`.
 
-### First Time Setup
+### Performance
 
-**Run this once to install system dependencies:**
-```bash
-cd ~/.config/nvim
-./install.sh
-```
-This installs required npm, pip3, and dotnet packages that LSP servers need.
-
-### Check Status
-```vim
-:Lazy                " Plugin manager UI
-:Mason               " LSP/formatter installer UI
-:LspInfo             " Active LSP servers
-:ConformInfo         " Formatter config
-:TSUpdate            " Update tree-sitter parsers
-:checkhealth         " Run health checks
-:SmearCursorToggle   " Toggle animated cursor
-:ThemeSelect         " Launch theme selector with live preview
-:Jackson             " Custom dragon command (test/demo)
-```
-
-### Auto-Installation
-
-Mason automatically installs LSP servers and tools on startup via:
-- `mason-tool-installer.nvim` - LSP servers, formatters, and linters
-- Note: Uses Neovim 0.11+ native `vim.lsp.config()` (no mason-lspconfig needed)
-
-Manual install (if needed):
-```vim
-:MasonInstall <package-name>
-```
-
-### Reload Config
-```vim
-:source ~/.config/nvim/init.lua
-```
-Or keymap: `<leader>rc`
+- LSP servers load per-filetype (see above); TS server memory capped at 4GB; `watchOptions.excludeDirectories` in ts_ls config excludes node_modules/dist/build/.next/etc. — extend that array for more
+- Treesitter auto-disables for files >200KB or >5000 lines; parsers auto-install on buffer enter
+- Diagnostics don't update in insert mode
 
 ## Key Mappings
 
-Leader: `<Space>`
+Leader: `<Space>`. Full listing in `lua/config/keymaps.lua` and which-key.
 
-### Essential
-- `<leader>e` - Toggle file explorer (nvim-tree)
-- `<leader>ff` - Find files (Telescope)
-- `<leader>fg` - Live grep
-- `<leader>fb` - Find buffers
-- `<leader>w` / `<C-s>` - Save current file
-- `<leader>wa` - Save all files
-- `<leader>q` - Quit current window
-- `<leader>qa` - Quit all windows
-- `<leader>rr` - Source current file
-- `<leader>rc` - Reload Neovim config
+- `<leader>e` explorer · `<leader>ff`/`fg`/`fb` Telescope find/grep/buffers
+- `<leader>w` save · `<leader>q` quit · `<leader>rc` reload config
+- LSP: `gd`/`gD`/`gr`/`K`, `<space>rn` rename, `<space>ca` code action, `<space>f` format, `[d`/`]d` diagnostics
+- Buffers: `<leader>bd` close, `<leader>bn`/`bp` next/prev
+- Git: `<leader>gs`/`gc`/`gp` status/commit/push
+- Prefixes: `<leader>a*` AI agents, `<leader>X*` iOS, `<leader>A*` Android
 
-### LSP (when active)
-- `gd` - Go to definition
-- `gD` - Go to declaration
-- `gr` - Find references
-- `K` - Hover documentation
-- `<space>rn` - Rename
-- `<space>ca` - Code actions
-- `<space>f` - Format file
-- `[d` / `]d` - Navigate diagnostics
+## Adding a New Language
 
-### Buffer Management
-- `<leader>bd` - Close current buffer (force)
-- `<leader>bn` - Next buffer
-- `<leader>bp` - Previous buffer
-
-### Git
-- `<leader>gs` - Git status
-- `<leader>gc` - Git commit
-- `<leader>gp` - Git push
-
-### Format Control
-- `:FormatDisable` - Disable format-on-save (buffer)
-- `:FormatDisable!` - Disable format-on-save (global)
-- `:FormatEnable` - Re-enable format-on-save
-- `<leader>mp` - Manual format
-
-## Adding New Language
-
-1. **Add LSP** in `lua/plugins/lsp.lua`:
-   ```lua
-   -- Configure the server
-   vim.lsp.config('your_lsp', {
-     settings = { ... }  -- optional server-specific settings
-   })
-
-   -- Add to the vim.lsp.enable() list
-   vim.lsp.enable({
-     'lua_ls', 'ts_ls', ... 'your_lsp'
-   })
-   ```
-
-2. **Add formatter** in `lua/plugins/conform.lua`:
-   ```lua
-   formatters_by_ft = {
-     your_filetype = { "your_formatter" },
-   }
-   ```
-
-3. **Install tools**: `:MasonInstall your-lsp your-formatter`
-
-4. **Add parser**: `:TSInstall your_language`
-
-## Performance Optimization (Large Projects)
-
-### Ignored Directories
-TypeScript LSP automatically excludes these directories from file watching (configured in `lua/plugins/lsp.lua:144-152`):
-- `node_modules`, `dist`, `build`, `.git`
-- `.next`, `.nuxt`, `coverage`
-
-**To add more ignored directories**: Edit the `excludeDirectories` array in the `ts_ls` config at `lua/plugins/lsp.lua:144`
-
-### Performance Features (Enabled by Default)
-- **Lazy LSP Loading**: Language servers load only when opening relevant filetypes
-- **Update in Insert Mode**: Disabled to prevent lag while typing
-- **File Size Limits**: Treesitter auto-disables for files >200KB or >5000 lines
-- **Reduced File Watching**: Dynamic file watching disabled for TS/ESLint
-- **Memory Limit**: TypeScript server limited to 4GB RAM
-
-### Manual Performance Controls
-```vim
-" Temporarily disable features if still experiencing lag:
-:TSDisable highlight          " Disable treesitter highlighting
-:TSDisable incremental_selection
-:TSDisable textobjects
-:TSEnable highlight           " Re-enable when needed
-
-:LspStop ts_ls                " Stop specific LSP server
-:LspRestart                   " Restart all LSP servers
-```
-
-## Troubleshooting
-
-### LSP not working
-```vim
-:LspInfo       " Check if server attached
-:LspRestart    " Restart LSP servers
-:Mason         " Verify tool installed
-```
-
-### Formatting not working
-```vim
-:ConformInfo   " Check formatter config
-:Mason         " Verify formatter installed
-```
-
-### Tree-sitter issues
-```vim
-:TSUpdate      " Update parsers
-:checkhealth nvim-treesitter
-```
-
-### Performance issues (lag/slowness)
-1. Check file size: `:echo getfsize(expand('%'))` (bytes)
-2. Check active LSPs: `:LspInfo`
-3. Check if Treesitter is active: `:TSBufToggle highlight`
-4. Increase `updatetime`: Edit `lua/config/settings.lua:7` (current: 300ms)
-5. For TypeScript projects: Add directories to exclude in `lua/plugins/lsp.lua:144`
+1. `lua/plugins/lsp.lua`: `vim.lsp.config('your_lsp', {...})` + add to an `enable_lsp_for_filetype()` call (or `vim.lsp.enable()` for always-on)
+2. `lua/plugins/conform.lua`: add to `formatters_by_ft` (skip if formatter is JVM-slow — see Kotlin note)
+3. `lua/plugins/mason.lua`: add tools to `ensure_installed`
+4. `:TSInstall your_language`
+5. Optional: fixture under `tests/fixtures/` + specs in `tests/`
 
 ## Important Notes
 
-- **System dependencies required**: Run `./install.sh` first to install npm/pip3/dotnet packages
-- **Auto-installation**: Mason automatically installs LSP servers/formatters on startup
-- **Modern LSP API**: Uses Neovim 0.11+ `vim.lsp.config()` and `vim.lsp.enable()` (no deprecation warnings)
-- **ESLint auto-fixes** on save for JS/TS files (configured in lsp.lua)
-- **Format-on-save** enabled by default, 500ms timeout
-- **Tree-sitter auto-install** enabled, will download parsers as needed
-- **File-type settings** in `ftplugin/*.lua` for language-specific configs
-- **Global LSP config** via `vim.lsp.config('*', {...})` applies to all servers
-- **Smear cursor**: Animated cursor effect enabled (toggle with `:SmearCursorToggle`)
-- **Alpha dashboard**: Custom start screen with quick actions (find files, recent, config, etc.)
-- **Theme selector**: Interactive theme selector with live preview (`:ThemeSelect`) - uses Telescope with code preview
-- **Theme persistence**: Automatically saves and loads selected themes via `theme_persistence.lua`
+- Commit messages: no `Co-Authored-By` trailer
+- Comments in plugin files are often Spanish — keep the existing style when editing
+- `ftplugin/*.lua` holds filetype-specific settings
+- Old docs may claim Swift/iOS was removed — false; it's fully supported (sourcekit + xcodebuild.nvim + swiftformat)
