@@ -260,6 +260,7 @@ return {
     })
 
     -- Reduce frequency of LSP updates
-    vim.lsp.set_log_level('WARN')  -- Less verbose logging
+    -- (vim.lsp.set_log_level está deprecado en nvim 0.12)
+    vim.lsp.log.set_level(vim.log.levels.WARN)  -- Less verbose logging
   end,
 }
