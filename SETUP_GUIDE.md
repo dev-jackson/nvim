@@ -13,7 +13,7 @@ Open Neovim and run these commands to install LSP servers:
 :MasonInstall typescript-language-server
 :MasonInstall eslint-lsp
 :MasonInstall tailwindcss-language-server
-:MasonInstall python-lsp-server
+:MasonInstall pyright
 :MasonInstall css-lsp
 :MasonInstall html-lsp
 :MasonInstall json-lsp
@@ -24,17 +24,17 @@ Open Neovim and run these commands to install LSP servers:
 ```vim
 :MasonInstall prettier
 :MasonInstall stylua
-:MasonInstall black
-:MasonInstall isort
+:MasonInstall ruff
 ```
 
 ### 3. 🔍 Install Linters via Mason
 
 ```vim
-:MasonInstall flake8
 :MasonInstall shellcheck
 :MasonInstall markdownlint
 ```
+
+Nota: Python usa `ruff` para lint + format + imports (reemplaza a black/isort/flake8).
 
 ### 4. 🍎 Swift Development Tools (macOS only)
 
@@ -137,7 +137,7 @@ After first launch, update tree-sitter parsers:
 You can also run this command to install everything at once:
 
 ```vim
-:MasonInstall lua-language-server typescript-language-server eslint-lsp tailwindcss-language-server python-lsp-server css-lsp html-lsp json-lsp prettier stylua black isort flake8 shellcheck markdownlint
+:MasonInstall lua-language-server typescript-language-server eslint-lsp tailwindcss-language-server pyright ruff css-lsp html-lsp json-lsp kotlin-lsp prettier stylua shellcheck markdownlint
 ```
 
 Then install Swift tools via Homebrew:

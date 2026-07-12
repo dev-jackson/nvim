@@ -5,9 +5,9 @@ A production-ready Neovim configuration for full-stack development across Web, A
 ## Features
 
 - **Multi-language LSP**: TypeScript/JavaScript, Python, C# (Roslyn), Kotlin, Swift
-- **AI Integration**: Claude Code CLI (`claude`) + OpenAI Codex CLI (`codex`) via native terminal panels with diff accept/reject
+- **AI Integration**: Claude Code CLI (`claude`), OpenAI Codex CLI (`codex`) and OpenCode CLI (`opencode`) via native terminal panels with diff accept/reject
 - **iOS/macOS Development**: xcodebuild.nvim with build, test, and device selection
-- **Android/Kotlin**: kotlin-language-server via Mason with inlay hints
+- **Android/Kotlin**: JetBrains kotlin-lsp (official) via Mason
 - **Web**: React + Next.js, Tailwind CSS, ESLint 9+ flat config support
 - **C# / .NET**: Roslyn LSP (replaces deprecated OmniSharp) via roslyn.nvim
 - **Auto-formatting**: conform.nvim with per-language formatters on save
@@ -21,9 +21,9 @@ A production-ready Neovim configuration for full-stack development across Web, A
 | Language | LSP | Formatter | Linter |
 |----------|-----|-----------|--------|
 | TypeScript/JavaScript | ts_ls | prettier | eslint |
-| Python | pylsp | black, isort | flake8 |
+| Python | pyright + ruff | ruff | ruff (LSP) |
 | C# / .NET | Roslyn (roslyn.nvim) | csharpier | — |
-| Kotlin / Android | kotlin_language_server | ktlint | — |
+| Kotlin / Android | kotlin_lsp (JetBrains) | ktlint | — |
 | Swift / iOS | sourcekit-lsp | swiftformat | swiftlint |
 | Lua | lua_ls | stylua | — |
 | HTML/CSS | html, cssls, tailwindcss | prettier | — |
@@ -31,7 +31,7 @@ A production-ready Neovim configuration for full-stack development across Web, A
 ## Prerequisites
 
 ### All Platforms
-- Neovim >= 0.11
+- Neovim >= 0.12 (requerido por nvim-treesitter rama `main`)
 - Git
 - Node.js >= 18.x
 - Python >= 3.10
@@ -62,7 +62,6 @@ cd ~/.config/nvim
 
 This installs:
 - Node.js global packages (typescript, prettier, eslint, etc.)
-- Python LSP packages (black, isort, flake8, python-lsp-server)
 - .NET tools (CSharpier formatter; Roslyn downloads automatically on first `.cs` open)
 - macOS: xcode-build-server, xcbeautify, swiftformat, swiftlint via Homebrew
 - Checks for `claude` and `codex` CLIs, offers to install Codex if missing
@@ -89,10 +88,10 @@ Works out of the box after `./install.sh`. Supports ESLint 9+ flat config (`esli
 
 ### Python
 
-Works out of the box after `./install.sh`.
+pyright (type checking) + ruff (lint, format, imports) via Mason. No pip packages needed.
 
 ```vim
-:LspInfo     " pylsp should appear
+:LspInfo     " pyright + ruff should appear
 ```
 
 ### C# / .NET (Roslyn)
@@ -106,11 +105,11 @@ roslyn.nvim downloads `Microsoft.CodeAnalysis.LanguageServer` automatically on f
 
 ### Kotlin / Android
 
-Mason auto-installs `kotlin-language-server` when you first open a `.kt` file.
+Mason auto-installs `kotlin-lsp` (JetBrains official, IntelliJ-based, ships its own JBR) when you first open a `.kt` file.
 
 ```vim
-" Open a .kt file — Mason installs kotlin-language-server automatically
-:LspInfo     " kotlin_language_server should appear
+" Open a .kt file — Mason installs kotlin-lsp automatically
+:LspInfo     " kotlin_lsp should appear (first attach can take 30-90s)
 ```
 
 ### Swift / iOS
@@ -243,10 +242,10 @@ Both tools connect their respective CLIs to Neovim via terminal panels. Claude p
 │   │   ├── lazy.lua             # Lazy.nvim bootstrap
 │   │   └── theme_persistence.lua # Theme save/load
 │   └── plugins/
-│       ├── ai.lua               # Claude Code + Codex CLI integration
+│       ├── ai.lua               # Claude Code + Codex + OpenCode CLI integration
 │       ├── ios.lua              # xcodebuild.nvim for iOS/macOS
 │       ├── roslyn.lua           # Roslyn LSP for C#
-│       ├── lsp.lua              # All LSP configs (0.11+ API)
+│       ├── lsp.lua              # All LSP configs (vim.lsp.config API)
 │       ├── mason.lua            # Mason + auto-installer
 │       ├── conform.lua          # Format-on-save
 │       ├── lint.lua             # nvim-lint
@@ -308,9 +307,9 @@ xcode-build-server config -scheme MyScheme -workspace MyApp.xcworkspace
 ### Kotlin / Android
 
 ```vim
-" Open a .kt file and wait for Mason to auto-install kotlin-language-server
+" Open a .kt file and wait for Mason to auto-install kotlin-lsp
 :Mason       " Check installation status
-:LspInfo     " kotlin_language_server should appear
+:LspInfo     " kotlin_lsp should appear (first attach can take 30-90s)
 ```
 
 ### AI (Claude Code / Codex)
@@ -354,7 +353,7 @@ For TypeScript projects: add large directories to `excludeDirectories` in `lua/p
 
 | Component | Minimum |
 |-----------|---------|
-| Neovim | >= 0.11 |
+| Neovim | >= 0.12 |
 | Node.js | >= 18.x |
 | Python | >= 3.10 |
 | .NET SDK | >= 8.0 (for C#) |
@@ -363,4 +362,4 @@ For TypeScript projects: add large directories to `excludeDirectories` in `lua/p
 
 ---
 
-**Last Updated**: February 2026
+**Last Updated**: July 2026
