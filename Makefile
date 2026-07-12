@@ -1,14 +1,17 @@
 NVIM        := nvim
 CONFIG_DIR  := $(HOME)/.config/nvim
 
-.PHONY: test test-syntax test-unit test-integration
+.PHONY: test test-syntax test-unit test-integration test-smoke test-all
 
 ## Run all tests (syntax + unit)
 test: test-syntax test-unit
 
+## Run everything, including slow integration and smoke tests
+test-all: test-syntax test-unit test-integration test-smoke
+
 ## Check Lua syntax for all files in lua/
 test-syntax:
-	@echo "==> Checking Lua syntax (36 files)..."
+	@echo "==> Checking Lua syntax..."
 	@$(NVIM) --headless --noplugin -c "\
 	lua \
 	  local files = vim.fn.globpath('lua', '**/*.lua', 0, 1); \
@@ -37,13 +40,24 @@ test-unit:
 	  EXIT=$$?; \
 	  exit $$EXIT
 
-## Run LSP integration tests (slow: up to 60s for Kotlin — requires Mason-installed LSP servers)
+## Run LSP integration tests (slow: up to 90s for Kotlin — requires Mason-installed LSP servers)
 test-integration:
-	@echo "==> LSP integration tests (hasta 60s para Kotlin)..."
+	@echo "==> LSP integration tests (hasta 90s para Kotlin)..."
 	@cd $(CONFIG_DIR) && \
 	  $(NVIM) --headless --noplugin \
 	    -u $(CONFIG_DIR)/tests/lsp_integration_init.lua \
 	    -c "lua require('plenary.busted').run('$(CONFIG_DIR)/tests/integration_spec.lua')" \
+	    2>&1; \
+	  EXIT=$$?; \
+	  exit $$EXIT
+
+## Per-language smoke tests: treesitter highlight + LSP attach on fixtures (slow)
+test-smoke:
+	@echo "==> Smoke tests por lenguaje (treesitter + LSP)..."
+	@cd $(CONFIG_DIR) && \
+	  $(NVIM) --headless --noplugin \
+	    -u $(CONFIG_DIR)/tests/smoke_init.lua \
+	    -c "lua require('plenary.busted').run('$(CONFIG_DIR)/tests/smoke_spec.lua')" \
 	    2>&1; \
 	  EXIT=$$?; \
 	  exit $$EXIT

@@ -14,5 +14,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	spec = {
 		{ import = "plugins" }
-	}
+	},
+	-- Ningún plugin usa rockspecs; desactiva el requisito de luarocks/hererocks
+	rocks = { enabled = false },
 })
